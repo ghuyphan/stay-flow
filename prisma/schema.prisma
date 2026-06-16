@@ -1,0 +1,343 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  GUEST
+  OWNER
+  SUPER_ADMIN
+}
+
+enum HomestayStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum RoomStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
+
+enum BookingStatus {
+  DRAFT
+  PENDING_PAYMENT
+  PAID
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+  REFUNDED
+  FAILED
+}
+
+enum StayType {
+  HOURLY
+  OVERNIGHT
+  DAILY
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+model User {
+  id             String                  @id @default(cuid())
+  name           String
+  email          String                  @unique
+  role           UserRole                @default(GUEST)
+  homestays      Homestay[]
+  bookings       Booking[]
+  reviews        Review[]
+  messageThreads MessageThread[]
+  aiSessions     AIChatSession[]
+  dashboard      DashboardLayoutConfig?
+  auditLogs      AuditLog[]
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+}
+
+model Homestay {
+  id                 String              @id @default(cuid())
+  ownerId            String
+  owner              User                @relation(fields: [ownerId], references: [id])
+  name               String
+  slug               String              @unique
+  description        String              @db.Text
+  address            String
+  city               String
+  country            String
+  latitude           Decimal?
+  longitude          Decimal?
+  status             HomestayStatus      @default(DRAFT)
+  checkInTime        String
+  checkOutTime       String
+  houseRules         String              @db.Text
+  cancellationPolicy String              @db.Text
+  images             HomestayImage[]
+  rooms              Room[]
+  amenities          HomestayAmenity[]
+  bookings           Booking[]
+  pricingRules       PricingRule[]
+  reviews            Review[]
+  layoutConfigs      LayoutConfig[]
+  themeConfig        ThemeConfig?
+  knowledgeItems     AIKnowledgeBaseItem[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@index([ownerId])
+  @@index([city, status])
+}
+
+model HomestayImage {
+  id         String   @id @default(cuid())
+  homestayId String
+  homestay   Homestay @relation(fields: [homestayId], references: [id], onDelete: Cascade)
+  url        String
+  alt        String
+  sortOrder  Int      @default(0)
+  isCover    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model RoomType {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @db.Text
+  rooms       Room[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Room {
+  id                 String              @id @default(cuid())
+  homestayId         String
+  homestay           Homestay            @relation(fields: [homestayId], references: [id], onDelete: Cascade)
+  roomTypeId         String
+  roomType           RoomType            @relation(fields: [roomTypeId], references: [id])
+  name               String
+  description        String              @db.Text
+  maxGuests          Int
+  basePrice          Decimal             @db.Decimal(10, 2)
+  hourlyPrice        Decimal?            @db.Decimal(10, 2)
+  overnightPrice     Decimal?            @db.Decimal(10, 2)
+  dailyPrice         Decimal?            @db.Decimal(10, 2)
+  minHours           Int                 @default(2)
+  maxHours           Int                 @default(12)
+  status             RoomStatus          @default(ACTIVE)
+  bookings           Booking[]
+  availabilityBlocks AvailabilityBlock[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@index([homestayId, status])
+}
+
+model Amenity {
+  id        String             @id @default(cuid())
+  name      String             @unique
+  icon      String?
+  homestays HomestayAmenity[]
+}
+
+model HomestayAmenity {
+  homestayId String
+  amenityId  String
+  homestay   Homestay @relation(fields: [homestayId], references: [id], onDelete: Cascade)
+  amenity    Amenity  @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([homestayId, amenityId])
+}
+
+model Booking {
+  id             String        @id @default(cuid())
+  bookingRef     String        @unique
+  userId         String?
+  user           User?         @relation(fields: [userId], references: [id])
+  homestayId     String
+  homestay       Homestay      @relation(fields: [homestayId], references: [id])
+  roomId         String
+  room           Room          @relation(fields: [roomId], references: [id])
+  checkIn        DateTime
+  checkOut       DateTime
+  stayType       StayType      @default(DAILY)
+  durationHours  Int?
+  durationLabel  String?
+  guestCount     Int
+  nights         Int
+  subtotal       Decimal       @db.Decimal(10, 2)
+  taxes          Decimal       @db.Decimal(10, 2)
+  fees           Decimal       @db.Decimal(10, 2)
+  discount       Decimal       @default(0) @db.Decimal(10, 2)
+  total          Decimal       @db.Decimal(10, 2)
+  currency       String        @default("USD")
+  status         BookingStatus @default(PENDING_PAYMENT)
+  customerName   String
+  customerEmail  String
+  customerPhone  String?
+  specialRequest String?       @db.Text
+  payment        Payment?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([roomId, checkIn, checkOut, status])
+  @@index([homestayId, createdAt])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  bookingId         String        @unique
+  booking           Booking       @relation(fields: [bookingId], references: [id])
+  provider          String
+  providerSessionId String?       @unique
+  providerPaymentId String?       @unique
+  amount            Decimal       @db.Decimal(10, 2)
+  currency          String
+  status            PaymentStatus @default(PENDING)
+  paidAt            DateTime?
+  rawWebhookPayload Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
+
+model AvailabilityBlock {
+  id        String   @id @default(cuid())
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  startDate DateTime
+  endDate   DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([roomId, startDate, endDate])
+}
+
+model PricingRule {
+  id         String   @id @default(cuid())
+  homestayId String
+  homestay   Homestay @relation(fields: [homestayId], references: [id], onDelete: Cascade)
+  name       String
+  startDate  DateTime
+  endDate    DateTime
+  multiplier Decimal? @db.Decimal(5, 2)
+  fixedPrice Decimal? @db.Decimal(10, 2)
+  priority   Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  homestayId String
+  homestay   Homestay @relation(fields: [homestayId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  rating     Int
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+}
+
+model MessageThread {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  subject   String
+  status    String
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Message {
+  id        String        @id @default(cuid())
+  threadId  String
+  thread    MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  senderId  String?
+  content   String        @db.Text
+  createdAt DateTime      @default(now())
+}
+
+model AIChatSession {
+  id        String          @id @default(cuid())
+  userId    String?
+  user      User?           @relation(fields: [userId], references: [id])
+  messages  AIChatMessage[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model AIChatMessage {
+  id        String        @id @default(cuid())
+  sessionId String
+  session   AIChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String
+  content   String        @db.Text
+  createdAt DateTime      @default(now())
+}
+
+model AIKnowledgeBaseItem {
+  id         String    @id @default(cuid())
+  homestayId String?
+  homestay   Homestay? @relation(fields: [homestayId], references: [id], onDelete: Cascade)
+  title      String
+  content    String    @db.Text
+  category   String
+  enabled    Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model LayoutConfig {
+  id          String    @id @default(cuid())
+  homestayId  String
+  homestay    Homestay  @relation(fields: [homestayId], references: [id], onDelete: Cascade)
+  page        String
+  config      Json
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([homestayId, page])
+}
+
+model ThemeConfig {
+  id         String   @id @default(cuid())
+  homestayId String   @unique
+  homestay   Homestay @relation(fields: [homestayId], references: [id], onDelete: Cascade)
+  config     Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model DashboardLayoutConfig {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  config    Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id])
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+}

@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+:root {
+  --color-background: #f8f7f2;
+  --color-foreground: #18201d;
+  --color-card: #ffffff;
+  --color-card-foreground: #18201d;
+  --color-primary: #1f6f5f;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #e8efe9;
+  --color-secondary-foreground: #194f44;
+  --color-muted: #efeee8;
+  --color-muted-foreground: #66706c;
+  --color-border: #ebe7dd;
+  --color-input: #ddd9cf;
+  --color-ring: #2a806e;
+  --color-accent: #d98d5f;
+  --color-success: #26815f;
+  --color-warning: #b86b1b;
+  --color-destructive: #b84949;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 0.875rem;
+  --shadow-sm: 0 1px 3px rgb(24 32 29 / 0.05), 0 10px 24px rgb(24 32 29 / 0.04);
+  --shadow-md: 0 14px 36px rgb(24 32 29 / 0.09);
+}
+
+.dark {
+  --color-background: #111714;
+  --color-foreground: #edf1ee;
+  --color-card: #18201d;
+  --color-card-foreground: #edf1ee;
+  --color-primary: #73c6af;
+  --color-primary-foreground: #10201b;
+  --color-secondary: #23342e;
+  --color-secondary-foreground: #c9e8df;
+  --color-muted: #202824;
+  --color-muted-foreground: #a2ada8;
+  --color-border: #303a36;
+  --color-input: #3a4540;
+  --color-ring: #73c6af;
+  --color-accent: #eda779;
+}
+
+@theme inline {
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --color-card: var(--color-card);
+  --color-card-foreground: var(--color-card-foreground);
+  --color-primary: var(--color-primary);
+  --color-primary-foreground: var(--color-primary-foreground);
+  --color-secondary: var(--color-secondary);
+  --color-secondary-foreground: var(--color-secondary-foreground);
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+  --color-border: var(--color-border);
+  --color-input: var(--color-input);
+  --color-ring: var(--color-ring);
+  --color-accent: var(--color-accent);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-destructive: var(--color-destructive);
+  --font-sans: "Avenir Next", "Segoe UI", sans-serif;
+  --font-display: Georgia, "Times New Roman", serif;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-primary) 24%, transparent);
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-ring) 45%, transparent);
+  outline-offset: 2px;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
