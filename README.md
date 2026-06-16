@@ -1,43 +1,108 @@
-# StayFlow
+# ⚡ StayFlow
 
-StayFlow is a fullstack short-stay discovery, booking, and operations platform built with Next.js App Router, TypeScript, Tailwind CSS, Prisma, Zod, and provider abstractions for payments and AI. It is aimed at city inventory where guests book hourly, overnight, or daily rooms.
+> **StayFlow** is a premium, full-stack short-stay discovery, booking, and operations platform. Tailored for urban/city inventory, StayFlow enables guests to book rooms by the hour, overnight, or daily with real-time quote validation, interactive layout building, and support powered by AI.
 
-## Getting started
+---
 
+## 🚀 Key Features
+
+*   **⏱️ Flexible Booking Durations:** Guests can seamlessly reserve rooms hourly, overnight, or daily.
+*   **💳 Demo Payment Gateway:** Server-confirmed, mock-provider payments for a fluid booking experience without actual credit cards.
+*   **🤖 AI Support Widget:** An intelligent chat assistant to resolve guest queries and retrieve booking statuses locally.
+*   **🛠️ Admin Dashboard:** Management portal for tracking bookings, managing homestay listings, customizing themes, and building dynamic UI layouts.
+*   **🎨 Dynamic Theme Customizer & Layout Builder:** Personalize the frontend styling and site architecture in real time from the admin panel.
+
+---
+
+## 🛠️ Technology Stack
+
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **Framework** | [Next.js 15](https://nextjs.org/) (App Router) | React framework for server-rendered page architectures & API routes. |
+| **Language** | [TypeScript](https://www.typescriptlang.org/) | Type-safe JavaScript for robust frontend and backend operations. |
+| **Database & ORM** | [Prisma](https://www.prisma.io/) & [PostgreSQL](https://www.postgresql.org/) | Modern ORM with seed scripts, migrations, and schema validation. |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com/) | Utility-first CSS styling for modern, highly responsive components. |
+| **Validation** | [Zod](https://zod.dev/) | Strict schema validation for booking configurations and pricing engines. |
+
+---
+
+## 🏃 Getting Started
+
+To spin up a local development server, follow these quick steps:
+
+### 1. Clone & Install Dependencies
 ```bash
-cp .env.example .env
+# Clone the repository
+git clone https://github.com/ghuyphan/stay-flow.git
+cd stay-flow
+
+# Install project dependencies
 npm install
-npm run dev
 ```
 
-The UI runs with typed demo data and mock providers without external service keys. PostgreSQL is required for Prisma migrations and seed data:
-
+### 2. Configure Environment Variables
+Create your local `.env` file by copying the example template:
 ```bash
+cp .env.example .env
+```
+*(Open `.env` and set your preferred admin password, database URLs, and session secrets.)*
+
+### 3. Initialize Database & Seed Demo Data
+Ensure your PostgreSQL instance is running, then synchronize the Prisma schema and populate the database:
+```bash
+# Apply schema to database
 npm run db:push
+
+# Seed initial listing, room, and admin account data
 npm run db:seed
 ```
 
-The functional local demo persists data to `data/app-data.json`. Sign in at `/login` with
-`stayflow-demo`. Set strong `ADMIN_PASSWORD` and `SESSION_SECRET` values in production.
-Supabase setup notes live in `docs/SUPABASE_SETUP.md`.
+### 4. Run Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser to explore StayFlow!
 
-Guest flow:
+*   **🔑 Login Credentials:** Sign in to the Admin Dashboard at `/login` using the demo password: `stayflow-demo`.
 
-1. Open a room and choose hourly, overnight, or daily.
-2. Enter guest details and reserve.
-3. Complete the server-confirmed demo payment.
-4. Use the private status URL to view or cancel the booking.
+---
 
-The floating support chat can answer property questions and look up a booking when both its
-reference and booking email are supplied.
+## 📂 Project Structure
 
-## Quality checks
+```
+├── docs/                     # Architecture & layout guidelines
+├── prisma/                   # Database schemas and seed scripts
+├── src/
+│   ├── app/                  # Next.js App Router (Public routes & Admin dashboard)
+│   ├── components/           # UI, layout, and domain-specific components
+│   ├── lib/                  # Utilities, mock data, and session helpers
+│   └── server/               # Database access repositories, AI, and pricing logic
+└── data/                     # Local file persistence for demo database
+```
+
+---
+
+## 🧪 Quality Assurance & Building
+
+StayFlow includes a complete suite of scripts to maintain code quality:
 
 ```bash
+# Typecheck TypeScript files
 npm run typecheck
+
+# Lint workspace files
 npm run lint
+
+# Run unit & integration tests
 npm run test
+
+# Build production bundle
 npm run build
 ```
 
-Architecture and design decisions live in `docs/`. Public routes are server-first; interactive booking, search, support, theme, and layout-builder features are isolated client components. Availability, pricing, payment truth, and permissions remain server-authoritative.
+---
+
+## 🛡️ Security & Operations
+
+*   **Server Authority:** Pricing logic, booking rules, payment truth, and user permissions are processed strictly server-side in `src/server/`.
+*   **Production Deployment:** For production builds, ensure you configure strong, randomly generated `ADMIN_PASSWORD` and `SESSION_SECRET` variables in your environment config.
