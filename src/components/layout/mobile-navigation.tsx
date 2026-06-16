@@ -3,9 +3,12 @@
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useLanguage } from "@/components/language-provider";
 
 export function MobileNavigation() {
   const [open, setOpen] = useState(false);
+  const { t } = useLanguage();
+
   return (
     <div className="md:hidden">
       <button
@@ -19,8 +22,12 @@ export function MobileNavigation() {
       {open ? (
         <nav className="absolute inset-x-0 top-full bg-background px-4 py-4 shadow-sm">
           <div className="mx-auto grid max-w-7xl gap-1">
-            <Link onClick={() => setOpen(false)} href="/homestays" className="rounded-lg px-3 py-3 font-medium hover:bg-muted">Stays</Link>
-            <Link onClick={() => setOpen(false)} href="/admin" className="rounded-lg px-3 py-3 font-medium hover:bg-muted">Host dashboard</Link>
+            <Link onClick={() => setOpen(false)} href="/homestays" className="rounded-lg px-3 py-3 font-medium hover:bg-muted">
+              {t("nav.stays")}
+            </Link>
+            <Link onClick={() => setOpen(false)} href="/admin" className="rounded-lg px-3 py-3 font-medium hover:bg-muted">
+              {t("nav.for_hosts")}
+            </Link>
           </div>
         </nav>
       ) : null}

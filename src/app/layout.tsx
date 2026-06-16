@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeRuntime } from "@/components/theme-runtime";
+import { LanguageProvider } from "@/components/language-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,7 +19,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <body>
-        <ThemeProvider><ThemeRuntime />{children}</ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <ThemeRuntime />
+            {children}
+          </ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

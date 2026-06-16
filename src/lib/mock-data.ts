@@ -47,6 +47,13 @@ export const homestays: Homestay[] = [
         hourlyPrice: 22,
         overnightPrice: 58,
         dailyPrice: 112,
+        hourlyBlockHours: 3,
+        hourlyBlockPrice: 60,
+        hourlyExtraHourPrice: 18,
+        overnightOptions: [
+          { id: "on-1", labelEn: "Late Overnight (22:30 - 08:00)", labelVi: "Qua đêm muộn (22:30 - 08:00)", checkInTime: "22:30", checkOutTime: "08:00", price: 80 },
+          { id: "on-2", labelEn: "Standard Overnight (22:00 - 10:00)", labelVi: "Qua đêm thường (22:00 - 10:00)", checkInTime: "22:00", checkOutTime: "10:00", price: 100 }
+        ],
         minHours: 2,
         maxHours: 12,
         price: 112,
@@ -63,6 +70,13 @@ export const homestays: Homestay[] = [
         hourlyPrice: 18,
         overnightPrice: 49,
         dailyPrice: 78,
+        hourlyBlockHours: 3,
+        hourlyBlockPrice: 50,
+        hourlyExtraHourPrice: 15,
+        overnightOptions: [
+          { id: "on-1", labelEn: "Late Overnight (22:30 - 08:00)", labelVi: "Qua đêm muộn (22:30 - 08:00)", checkInTime: "22:30", checkOutTime: "08:00", price: 70 },
+          { id: "on-2", labelEn: "Standard Overnight (22:00 - 10:00)", labelVi: "Qua đêm thường (22:00 - 10:00)", checkInTime: "22:00", checkOutTime: "10:00", price: 85 }
+        ],
         minHours: 2,
         maxHours: 10,
         price: 78,
@@ -103,6 +117,13 @@ export const homestays: Homestay[] = [
         hourlyPrice: 24,
         overnightPrice: 62,
         dailyPrice: 92,
+        hourlyBlockHours: 3,
+        hourlyBlockPrice: 65,
+        hourlyExtraHourPrice: 20,
+        overnightOptions: [
+          { id: "on-1", labelEn: "Late Overnight (22:30 - 08:00)", labelVi: "Qua đêm muộn (22:30 - 08:00)", checkInTime: "22:30", checkOutTime: "08:00", price: 85 },
+          { id: "on-2", labelEn: "Standard Overnight (22:00 - 10:00)", labelVi: "Qua đêm thường (22:00 - 10:00)", checkInTime: "22:00", checkOutTime: "10:00", price: 105 }
+        ],
         minHours: 2,
         maxHours: 12,
         price: 92,
@@ -119,6 +140,13 @@ export const homestays: Homestay[] = [
         hourlyPrice: 32,
         overnightPrice: 78,
         dailyPrice: 118,
+        hourlyBlockHours: 3,
+        hourlyBlockPrice: 85,
+        hourlyExtraHourPrice: 25,
+        overnightOptions: [
+          { id: "on-1", labelEn: "Late Overnight (22:30 - 08:00)", labelVi: "Qua đêm muộn (22:30 - 08:00)", checkInTime: "22:30", checkOutTime: "08:00", price: 110 },
+          { id: "on-2", labelEn: "Standard Overnight (22:00 - 10:00)", labelVi: "Qua đêm thường (22:00 - 10:00)", checkInTime: "22:00", checkOutTime: "10:00", price: 130 }
+        ],
         minHours: 3,
         maxHours: 12,
         price: 118,

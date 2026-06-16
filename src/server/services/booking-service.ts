@@ -29,6 +29,11 @@ export async function createBooking(input: unknown) {
     dailyRate: room.dailyPrice,
     checkIn: parsed.checkIn,
     checkOut: parsed.checkOut,
+    hourlyBlockHours: room.hourlyBlockHours,
+    hourlyBlockPrice: room.hourlyBlockPrice,
+    hourlyExtraHourPrice: room.hourlyExtraHourPrice,
+    overnightOptions: room.overnightOptions,
+    selectedOvernightOptionId: parsed.selectedOvernightOptionId,
   });
 
   return appRepository.createBooking({

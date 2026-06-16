@@ -3,90 +3,160 @@
 import { addDays, addHours, format } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { StayType } from "@/lib/types";
+import type { StayType, Room } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
-
-const startTimes = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"];
-const overnightTimes = ["20:00", "21:00", "22:00", "23:00"];
+import { useLanguage } from "@/components/language-provider";
 
 type Props = {
   homestayId: string;
-  roomId: string;
-  hourlyPrice: number;
-  overnightPrice: number;
-  dailyPrice: number;
-  minHours: number;
-  maxHours: number;
-  maxGuests: number;
+  rooms: Room[];
+  selectedRoomId: string;
+  onRoomChange: (roomId: string) => void;
 };
 
 export function BookingPanel({
   homestayId,
-  roomId,
-  hourlyPrice,
-  overnightPrice,
-  dailyPrice,
-  minHours,
-  maxHours,
-  maxGuests,
+  rooms,
+  selectedRoomId,
+  onRoomChange,
 }: Props) {
   const router = useRouter();
+  const { language, t } = useLanguage();
+
+  const activeRoom = useMemo(() => {
+    return rooms.find((r) => r.id === selectedRoomId) || rooms[0];
+  }, [rooms, selectedRoomId]);
+
   const tomorrow = useMemo(() => addDays(new Date(), 1), []);
   const [stayType, setStayType] = useState<StayType>("hourly");
   const [date, setDate] = useState(format(tomorrow, "yyyy-MM-dd"));
   const [startTime, setStartTime] = useState("14:00");
-  const [durationHours, setDurationHours] = useState(Math.max(2, minHours));
+  const [durationHours, setDurationHours] = useState(3);
   const [dailyCheckOut, setDailyCheckOut] = useState(format(addDays(tomorrow, 1), "yyyy-MM-dd"));
-  const [guestCount, setGuestCount] = useState(Math.min(2, maxGuests));
+  const [guestCount, setGuestCount] = useState(2);
+  const [selectedOvernightId, setSelectedOvernightId] = useState("");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Sync overnight option when active room changes
+  useEffect(() => {
+    if (activeRoom?.overnightOptions?.length > 0) {
+      setSelectedOvernightId(activeRoom.overnightOptions[0].id);
+    } else {
+      setSelectedOvernightId("");
+    }
+  }, [activeRoom]);
+
+  // Adjust durationHours limits based on room configuration
+  useEffect(() => {
+    if (activeRoom) {
+      setDurationHours(Math.max(activeRoom.minHours, Math.min(activeRoom.maxHours, 3)));
+      setGuestCount(Math.min(2, activeRoom.guests));
+    }
+  }, [activeRoom]);
+
   const hourOptions = useMemo(() => {
-    const lower = Math.max(1, minHours);
-    const upper = Math.max(lower, maxHours);
+    if (!activeRoom) return [2, 3, 4];
+    const lower = Math.max(1, activeRoom.minHours);
+    const upper = Math.max(lower, activeRoom.maxHours);
     return Array.from({ length: upper - lower + 1 }, (_, index) => lower + index);
-  }, [maxHours, minHours]);
+  }, [activeRoom]);
 
   const computed = useMemo(() => {
+    if (!activeRoom) {
+      return {
+        checkIn: new Date(),
+        checkOut: new Date(),
+        units: 0,
+        unitLabel: "",
+        lineLabel: "",
+        subtotal: 0,
+      };
+    }
+
     if (stayType === "daily") {
       const checkIn = new Date(`${date}T14:00:00`);
-      const checkOut = new Date(`${dailyCheckOut}T11:00:00`);
+      const checkOut = new Date(`${dailyCheckOut}T12:00:00`);
       const days = Math.max(0, Math.ceil((checkOut.getTime() - checkIn.getTime()) / 86_400_000));
       return {
         checkIn,
         checkOut,
         units: days,
-        unitLabel: `day${days === 1 ? "" : "s"}`,
-        lineLabel: `${formatCurrency(dailyPrice)} × ${days} day${days === 1 ? "" : "s"}`,
-        subtotal: dailyPrice * days,
+        unitLabel: days === 1 ? t("booking.days_singular") : t("booking.days_plural"),
+        lineLabel: t("booking.rate_daily", { price: formatCurrency(activeRoom.dailyPrice), days }),
+        subtotal: activeRoom.dailyPrice * days,
       };
     }
+
+    if (stayType === "overnight") {
+      const option =
+        activeRoom.overnightOptions.find((opt) => opt.id === selectedOvernightId) ||
+        activeRoom.overnightOptions[0];
+
+      if (option) {
+        const checkIn = new Date(`${date}T${option.checkInTime}:00`);
+        const checkOutDateStr =
+          option.checkOutTime < option.checkInTime
+            ? format(addDays(new Date(`${date}T00:00:00`), 1), "yyyy-MM-dd")
+            : date;
+        const checkOut = new Date(`${checkOutDateStr}T${option.checkOutTime}:00`);
+        const subtotal = option.price;
+        const label = language === "en" ? option.labelEn : option.labelVi;
+        return {
+          checkIn,
+          checkOut,
+          units: 1,
+          unitLabel: t("booking.overnight"),
+          lineLabel: t("booking.rate_overnight", { price: formatCurrency(subtotal), time: label }),
+          subtotal,
+        };
+      }
+    }
+
+    // hourly
     const checkIn = new Date(`${date}T${startTime}:00`);
-    const hours = stayType === "overnight" ? 12 : durationHours;
-    const checkOut = addHours(checkIn, hours);
-    const subtotal = stayType === "overnight" ? overnightPrice : hourlyPrice * hours;
+    const checkOut = addHours(checkIn, durationHours);
+    let subtotal = activeRoom.hourlyBlockPrice;
+    if (durationHours > activeRoom.hourlyBlockHours) {
+      subtotal += (durationHours - activeRoom.hourlyBlockHours) * activeRoom.hourlyExtraHourPrice;
+    }
+
+    const label = t("booking.rate_hourly_block", {
+      price: formatCurrency(activeRoom.hourlyBlockPrice),
+      hours: activeRoom.hourlyBlockHours,
+      extra: formatCurrency(activeRoom.hourlyExtraHourPrice),
+    });
+
     return {
       checkIn,
       checkOut,
-      units: stayType === "overnight" ? 1 : hours,
-      unitLabel: stayType === "overnight" ? "overnight" : `hour${hours === 1 ? "" : "s"}`,
-      lineLabel:
-        stayType === "overnight"
-          ? `${formatCurrency(overnightPrice)} overnight`
-          : `${formatCurrency(hourlyPrice)} × ${hours} hours`,
+      units: durationHours,
+      unitLabel: durationHours === 1 ? t("booking.hours_singular") : t("booking.hours_plural"),
+      lineLabel: label,
       subtotal,
     };
-  }, [dailyCheckOut, dailyPrice, date, durationHours, hourlyPrice, overnightPrice, startTime, stayType]);
+  }, [
+    activeRoom,
+    stayType,
+    date,
+    startTime,
+    durationHours,
+    dailyCheckOut,
+    selectedOvernightId,
+    language,
+    t,
+  ]);
 
   const estimatedTotal = Math.round(computed.subtotal * 1.18);
-  const validWindow = computed.checkOut > computed.checkIn && computed.units > 0;
+  const validWindow = activeRoom && computed.checkOut > computed.checkIn && computed.units > 0;
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!activeRoom) return;
     setLoading(true);
     setError("");
     const form = new FormData(event.currentTarget);
@@ -95,7 +165,7 @@ export function BookingPanel({
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         homestayId,
-        roomId,
+        roomId: activeRoom.id,
         stayType,
         checkIn: computed.checkIn.toISOString(),
         checkOut: computed.checkOut.toISOString(),
@@ -104,6 +174,7 @@ export function BookingPanel({
         customerEmail: form.get("email"),
         customerPhone: form.get("phone") || undefined,
         specialRequest: form.get("request") || undefined,
+        selectedOvernightOptionId: stayType === "overnight" ? selectedOvernightId : undefined,
       }),
     });
     const result = (await response.json()) as { bookingRef?: string; accessToken?: string; error?: string };
@@ -115,16 +186,27 @@ export function BookingPanel({
     router.push(`/booking/${result.bookingRef}/payment?token=${result.accessToken}`);
   }
 
+  if (!activeRoom) return null;
+
   return (
     <aside className="rounded-[var(--radius-lg)] bg-card p-5 shadow-[var(--shadow-sm)] lg:sticky lg:top-24">
+      {/* Pricing Header */}
       <div className="flex items-baseline justify-between">
-        <p>
-          <span className="text-2xl font-semibold">{formatCurrency(hourlyPrice)}</span>
-          <span className="text-sm text-muted-foreground"> / hour</span>
-        </p>
-        <span className="text-sm text-muted-foreground">{maxGuests} guests max</span>
+        <div>
+          <span className="text-2xl font-semibold">
+            {formatCurrency(activeRoom.hourlyBlockPrice)}
+          </span>
+          <span className="text-sm text-muted-foreground">
+            {" "}
+            / {activeRoom.hourlyBlockHours}h
+          </span>
+        </div>
+        <span className="text-sm text-muted-foreground">
+          {t("booking.max_guests", { count: activeRoom.guests })}
+        </span>
       </div>
 
+      {/* Stay Type Tabs */}
       <div className="mt-5 grid grid-cols-3 overflow-hidden rounded-full bg-muted p-1 text-sm font-semibold">
         {(["hourly", "overnight", "daily"] as StayType[]).map((type) => (
           <button
@@ -133,136 +215,193 @@ export function BookingPanel({
             onClick={() => {
               setStayType(type);
               setDetailsOpen(false);
-              if (type === "overnight") setStartTime("21:00");
             }}
-            className={`rounded-full px-3 py-2 capitalize ${stayType === type ? "bg-primary text-white" : "text-muted-foreground"}`}
+            className={`rounded-full px-3 py-2 capitalize transition-all active:scale-95 ${
+              stayType === type ? "bg-primary text-white" : "text-muted-foreground hover:text-foreground"
+            }`}
           >
-            {type}
+            {t(`booking.${type}`)}
           </button>
         ))}
       </div>
 
+      {/* Form Fields */}
       <div className="mt-5 grid grid-cols-2 gap-2 rounded-[var(--radius-md)] bg-muted/50 p-2">
-        <label className="rounded-xl bg-card px-3 py-3">
-          <span className="block text-xs font-semibold">Date</span>
+        {/* Room Selector dropdown (shown when there are multiple rooms) */}
+        {rooms.length > 1 ? (
+          <label className="col-span-2 block rounded-xl bg-card px-3 py-3 border border-transparent hover:border-primary/20">
+            <span className="block text-xs font-semibold text-primary">{t("booking.select_room")}</span>
+            <select
+              value={selectedRoomId}
+              onChange={(e) => {
+                onRoomChange(e.target.value);
+                setDetailsOpen(false);
+              }}
+              className="mt-1 w-full bg-transparent text-sm font-semibold outline-none text-foreground"
+            >
+              {rooms.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {t(r.name)}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+
+        {/* Date Selector */}
+        <label className="rounded-xl bg-card px-3 py-3 col-span-1">
+          <span className="block text-xs font-semibold">{t("booking.date_label")}</span>
           <Input
             type="date"
             value={date}
             min={format(tomorrow, "yyyy-MM-dd")}
             onChange={(event) => setDate(event.target.value)}
-            className="mt-1 min-h-8 border-0 bg-transparent p-0 shadow-none ring-0"
+            className="mt-1 min-h-8 border-0 bg-transparent p-0 shadow-none ring-0 focus-visible:ring-0"
           />
         </label>
+
+        {/* Start Time / Checkout Date / Overnight package selectors */}
         {stayType === "daily" ? (
-          <label className="rounded-xl bg-card px-3 py-3">
-            <span className="block text-xs font-semibold">Check-out</span>
+          <label className="rounded-xl bg-card px-3 py-3 col-span-1">
+            <span className="block text-xs font-semibold">{t("booking.checkout_label")}</span>
             <Input
               type="date"
               value={dailyCheckOut}
               min={date}
               onChange={(event) => setDailyCheckOut(event.target.value)}
-              className="mt-1 min-h-8 border-0 bg-transparent p-0 shadow-none ring-0"
+              className="mt-1 min-h-8 border-0 bg-transparent p-0 shadow-none ring-0 focus-visible:ring-0"
             />
           </label>
+        ) : stayType === "overnight" ? (
+          <label className="rounded-xl bg-card px-3 py-3 col-span-1">
+            <span className="block text-xs font-semibold">{t("booking.select_overnight_slot")}</span>
+            <select
+              value={selectedOvernightId}
+              onChange={(event) => setSelectedOvernightId(event.target.value)}
+              className="mt-2 w-full bg-transparent text-sm outline-none font-medium"
+            >
+              {activeRoom.overnightOptions.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {language === "en" ? opt.labelEn : opt.labelVi}
+                </option>
+              ))}
+            </select>
+          </label>
         ) : (
-          <label className="rounded-xl bg-card px-3 py-3">
-            <span className="block text-xs font-semibold">Start time</span>
+          <label className="rounded-xl bg-card px-3 py-3 col-span-1">
+            <span className="block text-xs font-semibold">{t("booking.checkin_label")}</span>
             <select
               value={startTime}
               onChange={(event) => setStartTime(event.target.value)}
-              className="mt-2 w-full bg-transparent text-sm outline-none"
+              className="mt-2 w-full bg-transparent text-sm outline-none font-medium"
             >
-              {(stayType === "overnight" ? overnightTimes : startTimes).map((time) => (
-                <option key={time} value={time}>{time}</option>
+              {["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"].map((time) => (
+                <option key={time} value={time}>
+                  {time}
+                </option>
               ))}
             </select>
           </label>
         )}
+
+        {/* Hourly Duration Selector */}
         {stayType === "hourly" ? (
-          <label className="rounded-xl bg-card px-3 py-3">
-            <span className="block text-xs font-semibold">Duration</span>
+          <label className="rounded-xl bg-card px-3 py-3 col-span-1">
+            <span className="block text-xs font-semibold">{t("booking.duration_label")}</span>
             <select
               value={durationHours}
               onChange={(event) => setDurationHours(Number(event.target.value))}
-              className="mt-2 w-full bg-transparent text-sm outline-none"
+              className="mt-2 w-full bg-transparent text-sm outline-none font-medium"
             >
               {hourOptions.map((hours) => (
-                <option key={hours} value={hours}>{hours} hours</option>
+                <option key={hours} value={hours}>
+                  {t("booking.hours_plural", { count: hours })}
+                </option>
               ))}
             </select>
           </label>
         ) : null}
-        <label className={`${stayType === "hourly" ? "" : "col-span-2"} rounded-xl bg-card px-3 py-3`}>
-          <span className="block text-xs font-semibold">Guests</span>
+
+        {/* Guests Selector */}
+        <label className={`${stayType === "hourly" ? "col-span-1" : "col-span-1"} rounded-xl bg-card px-3 py-3`}>
+          <span className="block text-xs font-semibold">{t("booking.guests_label")}</span>
           <select
             value={guestCount}
             onChange={(event) => setGuestCount(Number(event.target.value))}
-            className="mt-2 w-full bg-transparent text-sm outline-none"
+            className="mt-2 w-full bg-transparent text-sm outline-none font-medium"
           >
-            {Array.from({ length: maxGuests }, (_, index) => (
+            {Array.from({ length: activeRoom.guests }, (_, index) => (
               <option key={index + 1} value={index + 1}>
-                {index + 1} guest{index ? "s" : ""}
+                {index === 0
+                  ? t("booking.guest_count", { count: 1 })
+                  : t("booking.guest_count_plural", { count: index + 1 })}
               </option>
             ))}
           </select>
         </label>
       </div>
 
+      {/* Button & Guest Info Form */}
       {!detailsOpen ? (
         <Button className="mt-4 w-full" size="lg" disabled={!validWindow} onClick={() => setDetailsOpen(true)}>
-          Continue · {formatCurrency(estimatedTotal)}
+          {t("booking.continue", { price: formatCurrency(estimatedTotal) })}
         </Button>
       ) : (
         <form onSubmit={submit} className="mt-5 grid gap-3">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
             <label className="text-xs font-semibold">
-              Name
+              {t("booking.form_name")}
               <Input name="name" required minLength={2} className="mt-1" autoComplete="name" />
             </label>
             <label className="text-xs font-semibold">
-              Email
+              {t("booking.form_email")}
               <Input name="email" type="email" required className="mt-1" autoComplete="email" />
             </label>
           </div>
           <label className="text-xs font-semibold">
-            Phone <span className="font-normal text-muted-foreground">(optional)</span>
+            {t("booking.form_phone")} <span className="font-normal text-muted-foreground">{t("booking.form_phone_sub")}</span>
             <Input name="phone" type="tel" className="mt-1" autoComplete="tel" />
           </label>
           <label className="text-xs font-semibold">
-            Note <span className="font-normal text-muted-foreground">(optional)</span>
-            <Input name="request" className="mt-1" placeholder="Arrival time, plate number..." />
+            {t("booking.form_note")} <span className="font-normal text-muted-foreground">{t("booking.form_note_sub")}</span>
+            <Input name="request" className="mt-1" placeholder={t("booking.form_note_placeholder")} />
           </label>
           {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
           <Button type="submit" size="lg" disabled={loading || !validWindow}>
             {loading ? <Loader2 className="size-4 animate-spin" /> : null}
-            Reserve
+            {t("booking.reserve")}
           </Button>
           <button
             type="button"
             className="text-sm text-muted-foreground hover:text-foreground"
             onClick={() => setDetailsOpen(false)}
           >
-            Back
+            {t("booking.back")}
           </button>
         </form>
       )}
 
+      {/* Receipt Summary */}
       {validWindow ? (
         <div className="mt-5 grid gap-2 rounded-[var(--radius-md)] bg-muted/40 p-3 text-sm">
-          <div className="flex justify-between text-muted-foreground">
-            <span>{computed.lineLabel}</span>
-            <span>{formatCurrency(computed.subtotal)}</span>
+          <div className="flex flex-col gap-1 text-muted-foreground border-b border-border pb-2">
+            <span className="font-semibold text-foreground text-xs uppercase tracking-wider">{t("booking.select_room")}</span>
+            <span className="text-foreground font-medium text-sm">{t(activeRoom.name)}</span>
           </div>
-          <div className="flex justify-between text-muted-foreground">
+          <div className="flex justify-between text-muted-foreground pt-1">
+            <span className="max-w-[70%] text-xs leading-relaxed">{computed.lineLabel}</span>
+            <span className="font-medium text-foreground">{formatCurrency(computed.subtotal)}</span>
+          </div>
+          <div className="flex justify-between text-muted-foreground text-xs">
             <span>{format(computed.checkIn, "MMM d, HH:mm")} → {format(computed.checkOut, "MMM d, HH:mm")}</span>
           </div>
-          <div className="flex justify-between font-semibold">
-            <span>Estimated total</span>
-            <span>{formatCurrency(estimatedTotal)}</span>
+          <div className="flex justify-between font-semibold border-t border-border pt-2 mt-1">
+            <span>{t("booking.estimated_total")}</span>
+            <span className="text-primary">{formatCurrency(estimatedTotal)}</span>
           </div>
         </div>
       ) : (
-        <p className="mt-3 text-sm text-destructive">Choose a valid time window.</p>
+        <p className="mt-3 text-sm text-destructive">{t("booking.invalid_window")}</p>
       )}
     </aside>
   );

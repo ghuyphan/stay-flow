@@ -12,6 +12,7 @@ export const createBookingSchema = z
     customerEmail: z.string().email(),
     customerPhone: z.string().trim().max(30).optional(),
     specialRequest: z.string().trim().max(1000).optional(),
+    selectedOvernightOptionId: z.string().optional(),
   })
   .refine((value) => value.checkOut > value.checkIn, {
     message: "Check-out must be after check-in.",

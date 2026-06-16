@@ -1,11 +1,16 @@
+"use client";
+
 import { ArrowUpRight, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import type { Homestay } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
+import { useLanguage } from "@/components/language-provider";
 
 export function HomestayCard({ homestay }: { homestay: Homestay }) {
+  const { language, t } = useLanguage();
+
   return (
     <article className="group">
       <Link href={`/homestays/${homestay.slug}`} className="block">
@@ -32,8 +37,8 @@ export function HomestayCard({ homestay }: { homestay: Homestay }) {
         <div className="pt-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="font-display text-xl font-semibold">{homestay.name}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{homestay.location}</p>
+              <h3 className="font-display text-xl font-semibold">{t(homestay.name)}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{t(homestay.location)}</p>
             </div>
             <span className="flex items-center gap-1 text-sm font-semibold">
               <Star className="size-4 fill-current text-accent" />
@@ -41,10 +46,15 @@ export function HomestayCard({ homestay }: { homestay: Homestay }) {
             </span>
           </div>
           <div className="mt-3 flex items-end justify-between">
-            <span className="text-xs text-muted-foreground">{homestay.tags.join(" · ")}</span>
-            <p>
+            <span className="text-xs text-muted-foreground">
+              {homestay.tags.map((tag) => t(tag)).join(" · ")}
+            </span>
+            <p className="text-right">
+              <span className="text-xs text-muted-foreground mr-1 block sm:inline">
+                {language === "vi" ? "từ" : "from"}
+              </span>
               <span className="font-semibold">{formatCurrency(homestay.priceFrom)}</span>
-              <span className="text-sm text-muted-foreground"> / hour</span>
+              <span className="text-sm text-muted-foreground"> / 3h</span>
             </p>
           </div>
         </div>

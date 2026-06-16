@@ -14,6 +14,15 @@ export type Homestay = {
   rooms: Room[];
 };
 
+export type OvernightOption = {
+  id: string;
+  labelEn: string;
+  labelVi: string;
+  checkInTime: string;
+  checkOutTime: string;
+  price: number;
+};
+
 export type Room = {
   id: string;
   name: string;
@@ -21,9 +30,13 @@ export type Room = {
   guests: number;
   beds: string;
   size: string;
-  hourlyPrice: number;
-  overnightPrice: number;
+  hourlyPrice?: number;
+  overnightPrice?: number;
   dailyPrice: number;
+  hourlyBlockHours: number;
+  hourlyBlockPrice: number;
+  hourlyExtraHourPrice: number;
+  overnightOptions: OvernightOption[];
   minHours: number;
   maxHours: number;
   price: number;

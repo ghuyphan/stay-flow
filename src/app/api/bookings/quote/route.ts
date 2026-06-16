@@ -9,6 +9,7 @@ const quoteSchema = z
     stayType: z.enum(["hourly", "overnight", "daily"]).default("daily"),
     checkIn: z.coerce.date(),
     checkOut: z.coerce.date(),
+    selectedOvernightOptionId: z.string().optional(),
   })
   .refine((value) => value.checkOut > value.checkIn, { path: ["checkOut"] });
 
@@ -31,6 +32,11 @@ export async function POST(request: Request) {
       dailyRate: room.dailyPrice,
       checkIn: parsed.data.checkIn,
       checkOut: parsed.data.checkOut,
+      hourlyBlockHours: room.hourlyBlockHours,
+      hourlyBlockPrice: room.hourlyBlockPrice,
+      hourlyExtraHourPrice: room.hourlyExtraHourPrice,
+      overnightOptions: room.overnightOptions,
+      selectedOvernightOptionId: parsed.data.selectedOvernightOptionId,
     }),
   );
 }

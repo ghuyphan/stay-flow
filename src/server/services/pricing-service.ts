@@ -1,5 +1,5 @@
 import { differenceInCalendarDays, differenceInMinutes } from "date-fns";
-import type { StayType } from "@/lib/types";
+import type { OvernightOption, StayType } from "@/lib/types";
 
 export type PriceQuote = {
   nights: number;
@@ -55,43 +55,84 @@ export function calculateStayPrice({
   checkIn,
   checkOut,
   discount = 0,
+  hourlyBlockHours,
+  hourlyBlockPrice,
+  hourlyExtraHourPrice,
+  overnightOptions,
+  selectedOvernightOptionId,
 }: {
   stayType: StayType;
-  hourlyRate: number;
-  overnightRate: number;
+  hourlyRate?: number | null;
+  overnightRate?: number | null;
   dailyRate: number;
   checkIn: Date;
   checkOut: Date;
   discount?: number;
+  hourlyBlockHours?: number;
+  hourlyBlockPrice?: number;
+  hourlyExtraHourPrice?: number;
+  overnightOptions?: OvernightOption[];
+  selectedOvernightOptionId?: string;
 }): PriceQuote {
   if (checkOut <= checkIn) throw new Error("Check-out must be after check-in.");
 
   const rawHours = differenceInMinutes(checkOut, checkIn) / 60;
   const durationHours = Math.max(1, Math.ceil(rawHours));
   const nights = Math.max(0, differenceInCalendarDays(checkOut, checkIn));
-  const units =
-    stayType === "hourly"
-      ? durationHours
-      : stayType === "overnight"
-        ? 1
-        : Math.max(1, nights);
-  const unitRate =
-    stayType === "hourly"
-      ? hourlyRate
-      : stayType === "overnight"
-        ? overnightRate
-        : dailyRate;
 
-  const subtotal = unitRate * units;
+  let subtotal = 0;
+  let durationLabel = "";
+  let units = 1;
+
+  if (stayType === "hourly") {
+    if (
+      hourlyBlockHours !== undefined &&
+      hourlyBlockPrice !== undefined &&
+      hourlyExtraHourPrice !== undefined
+    ) {
+      if (durationHours <= hourlyBlockHours) {
+        subtotal = hourlyBlockPrice;
+      } else {
+        subtotal = hourlyBlockPrice + (durationHours - hourlyBlockHours) * hourlyExtraHourPrice;
+      }
+    } else {
+      subtotal = (hourlyRate ?? 18) * durationHours;
+    }
+    units = durationHours;
+    durationLabel = `${durationHours} hour${durationHours === 1 ? "" : "s"}`;
+  } else if (stayType === "overnight") {
+    if (overnightOptions && overnightOptions.length > 0) {
+      const option =
+        overnightOptions.find((opt) => opt.id === selectedOvernightOptionId) ??
+        overnightOptions[0];
+      subtotal = option ? option.price : (overnightRate ?? 49);
+      durationLabel = option ? `overnight (${option.checkInTime}-${option.checkOutTime})` : "overnight";
+    } else {
+      subtotal = overnightRate ?? 49;
+      durationLabel = "overnight";
+    }
+    units = 1;
+  } else {
+    // daily
+    units = Math.max(1, nights);
+    subtotal = dailyRate * units;
+    durationLabel = `${units} day${units === 1 ? "" : "s"}`;
+  }
+
   const fees = Math.round(subtotal * 0.08);
   const taxes = Math.round(subtotal * 0.1);
   const total = Math.max(0, subtotal + fees + taxes - discount);
-  const durationLabel =
-    stayType === "hourly"
-      ? `${durationHours} hour${durationHours === 1 ? "" : "s"}`
-      : stayType === "overnight"
-        ? "overnight"
-        : `${units} day${units === 1 ? "" : "s"}`;
 
-  return { nights: units, durationHours, stayType, durationLabel, subtotal, fees, taxes, discount, total, currency: "USD" };
+  return {
+    nights: stayType === "daily" ? units : stayType === "overnight" ? 1 : 0,
+    durationHours,
+    stayType,
+    durationLabel,
+    subtotal,
+    fees,
+    taxes,
+    discount,
+    total,
+    currency: "USD",
+  };
 }

@@ -165,12 +165,44 @@ function createBookingReference() {
 
 function normalizeRoom(room: Room): Room {
   const dailyPrice = room.dailyPrice ?? room.price;
+  const legacyHourly = room.hourlyPrice ?? Math.max(1, Math.round(dailyPrice * 0.28));
+  const legacyOvernight = room.overnightPrice ?? Math.max(1, Math.round(dailyPrice * 0.68));
+
+  const hourlyBlockHours = room.hourlyBlockHours ?? 3;
+  const hourlyBlockPrice = room.hourlyBlockPrice ?? (legacyHourly * 3);
+  const hourlyExtraHourPrice = room.hourlyExtraHourPrice ?? legacyHourly;
+
+  const overnightOptions = room.overnightOptions?.length
+    ? room.overnightOptions
+    : [
+        {
+          id: "on-1",
+          labelEn: "Late Overnight (22:30 - 08:00)",
+          labelVi: "Qua đêm muộn (22:30 - 08:00)",
+          checkInTime: "22:30",
+          checkOutTime: "08:00",
+          price: legacyOvernight,
+        },
+        {
+          id: "on-2",
+          labelEn: "Standard Overnight (22:00 - 10:00)",
+          labelVi: "Qua đêm thường (22:00 - 10:00)",
+          checkInTime: "22:00",
+          checkOutTime: "10:00",
+          price: Math.round(legacyOvernight * 1.25),
+        },
+      ];
+
   return {
     ...room,
     dailyPrice,
     price: room.price ?? dailyPrice,
-    hourlyPrice: room.hourlyPrice ?? Math.max(1, Math.round(dailyPrice * 0.28)),
-    overnightPrice: room.overnightPrice ?? Math.max(1, Math.round(dailyPrice * 0.68)),
+    hourlyPrice: legacyHourly,
+    overnightPrice: legacyOvernight,
+    hourlyBlockHours,
+    hourlyBlockPrice,
+    hourlyExtraHourPrice,
+    overnightOptions,
     minHours: room.minHours ?? 2,
     maxHours: room.maxHours ?? 12,
   };
@@ -181,7 +213,7 @@ function normalizeHomestay(homestay: Homestay): Homestay {
   return {
     ...homestay,
     rooms,
-    priceFrom: Math.min(...rooms.map((room) => room.hourlyPrice)),
+    priceFrom: Math.min(...rooms.map((room) => room.hourlyBlockPrice)),
   };
 }
 
@@ -279,6 +311,9 @@ export const appRepository = {
     if (data.homestays.some((homestay) => homestay.slug === input.slug)) {
       throw new Error("That URL slug is already in use.");
     }
+    const legacyHourly = Math.max(1, Math.round(input.priceFrom * 0.28));
+    const legacyOvernight = Math.max(1, Math.round(input.priceFrom * 0.68));
+
     const created: Homestay = {
       ...input,
       id: `hs_${randomUUID().slice(0, 8)}`,
@@ -296,9 +331,30 @@ export const appRepository = {
           beds: "1 queen bed",
           size: "30 m²",
           price: input.priceFrom,
-          hourlyPrice: Math.max(1, Math.round(input.priceFrom * 0.28)),
-          overnightPrice: Math.max(1, Math.round(input.priceFrom * 0.68)),
+          hourlyPrice: legacyHourly,
+          overnightPrice: legacyOvernight,
           dailyPrice: input.priceFrom,
+          hourlyBlockHours: 3,
+          hourlyBlockPrice: legacyHourly * 3,
+          hourlyExtraHourPrice: legacyHourly,
+          overnightOptions: [
+            {
+              id: "on-1",
+              labelEn: "Late Overnight (22:30 - 08:00)",
+              labelVi: "Qua đêm muộn (22:30 - 08:00)",
+              checkInTime: "22:30",
+              checkOutTime: "08:00",
+              price: legacyOvernight,
+            },
+            {
+              id: "on-2",
+              labelEn: "Standard Overnight (22:00 - 10:00)",
+              labelVi: "Qua đêm thường (22:00 - 10:00)",
+              checkInTime: "22:00",
+              checkOutTime: "10:00",
+              price: Math.round(legacyOvernight * 1.25),
+            }
+          ],
           minHours: 2,
           maxHours: 12,
           image: input.image,
@@ -344,7 +400,7 @@ export const appRepository = {
     if (!homestay) return undefined;
     const room: Room = { ...input, id: `room_${randomUUID().slice(0, 8)}` };
     homestay.rooms.push(room);
-    homestay.priceFrom = Math.min(...homestay.rooms.map((item) => item.hourlyPrice));
+    homestay.priceFrom = Math.min(...homestay.rooms.map((item) => item.hourlyBlockPrice));
     await writeData(data);
     return room;
   },
@@ -355,7 +411,7 @@ export const appRepository = {
     const index = homestay?.rooms.findIndex((room) => room.id === roomId) ?? -1;
     if (!homestay || index < 0) return undefined;
     homestay.rooms[index] = { ...homestay.rooms[index], ...input, id: roomId };
-    homestay.priceFrom = Math.min(...homestay.rooms.map((item) => item.hourlyPrice));
+    homestay.priceFrom = Math.min(...homestay.rooms.map((item) => item.hourlyBlockPrice));
     await writeData(data);
     return homestay.rooms[index];
   },
@@ -367,7 +423,7 @@ export const appRepository = {
     const nextRooms = homestay.rooms.filter((room) => room.id !== roomId);
     if (nextRooms.length === homestay.rooms.length) return false;
     homestay.rooms = nextRooms;
-    homestay.priceFrom = Math.min(...nextRooms.map((item) => item.hourlyPrice));
+    homestay.priceFrom = Math.min(...nextRooms.map((item) => item.hourlyBlockPrice));
     await writeData(data);
     return true;
   },
