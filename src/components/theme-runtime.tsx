@@ -15,7 +15,7 @@ export function ThemeRuntime() {
         if (!active) return;
         document.documentElement.style.setProperty("--color-primary", theme.primary);
         document.documentElement.style.setProperty("--color-accent", theme.accent);
-        setTheme(theme.mode);
+        setTheme(theme.mode === "dark" ? "light" : theme.mode);
       });
     return () => {
       active = false;

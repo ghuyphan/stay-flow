@@ -15,12 +15,12 @@ export function MobileNavigation() {
         type="button"
         aria-label={open ? "Close navigation" : "Open navigation"}
         onClick={() => setOpen((value) => !value)}
-        className="grid size-11 place-items-center rounded-full bg-card shadow-[var(--shadow-sm)]"
+        className="grid size-12 place-items-center rounded-[var(--radius-md)] bg-muted text-foreground"
       >
         {open ? <X className="size-5" /> : <Menu className="size-5" />}
       </button>
       {open ? (
-        <nav className="absolute inset-x-0 top-full bg-background px-4 py-4 shadow-sm">
+        <nav className="absolute inset-x-0 top-full border-b border-border bg-background/96 px-4 py-4 shadow-sm backdrop-blur-md">
           <div className="mx-auto grid max-w-7xl gap-1">
             <Link onClick={() => setOpen(false)} href="/homestays" className="rounded-lg px-3 py-3 font-medium hover:bg-muted">
               {t("nav.stays")}

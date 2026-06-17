@@ -2,8 +2,8 @@ import { z } from "zod";
 
 export const themeConfigSchema = z.object({
   mode: z.enum(["light", "dark", "system"]).default("light"),
-  primary: z.string().regex(/^#[0-9a-fA-F]{6}$/).default("#1F6F5F"),
-  accent: z.string().regex(/^#[0-9a-fA-F]{6}$/).default("#D98D5F"),
+  primary: z.string().regex(/^#[0-9a-fA-F]{6}$/).default("#F49A6C"),
+  accent: z.string().regex(/^#[0-9a-fA-F]{6}$/).default("#89906E"),
   radius: z.enum(["sm", "md", "lg"]).default("lg"),
   font: z.enum(["manrope", "inter", "system"]).default("manrope"),
 });
@@ -35,5 +35,5 @@ export function generateAccessibleColorPair(hex: string) {
   const blue = value & 255;
   const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
 
-  return { background: hex, foreground: luminance > 0.58 ? "#18201D" : "#FFFFFF" };
+  return { background: hex, foreground: luminance > 0.58 ? "#182033" : "#FFFFFF" };
 }

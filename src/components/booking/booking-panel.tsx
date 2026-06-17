@@ -42,21 +42,25 @@ export function BookingPanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Sync overnight option when active room changes
   useEffect(() => {
-    if (activeRoom?.overnightOptions?.length > 0) {
-      setSelectedOvernightId(activeRoom.overnightOptions[0].id);
-    } else {
-      setSelectedOvernightId("");
-    }
+    const timer = window.setTimeout(() => {
+      if (activeRoom?.overnightOptions?.length > 0) {
+        setSelectedOvernightId(activeRoom.overnightOptions[0].id);
+      } else {
+        setSelectedOvernightId("");
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [activeRoom]);
 
-  // Adjust durationHours limits based on room configuration
   useEffect(() => {
-    if (activeRoom) {
-      setDurationHours(Math.max(activeRoom.minHours, Math.min(activeRoom.maxHours, 3)));
-      setGuestCount(Math.min(2, activeRoom.guests));
-    }
+    const timer = window.setTimeout(() => {
+      if (activeRoom) {
+        setDurationHours(Math.max(activeRoom.minHours, Math.min(activeRoom.maxHours, 3)));
+        setGuestCount(Math.min(2, activeRoom.guests));
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [activeRoom]);
 
   const hourOptions = useMemo(() => {
@@ -189,7 +193,7 @@ export function BookingPanel({
   if (!activeRoom) return null;
 
   return (
-    <aside className="rounded-[var(--radius-lg)] bg-card p-5 shadow-[var(--shadow-sm)] lg:sticky lg:top-24">
+    <aside className="rounded-[calc(var(--radius-lg)+0.5rem)] border border-border bg-card p-5 shadow-[var(--shadow-sm)] lg:sticky lg:top-24">
       {/* Pricing Header */}
       <div className="flex items-baseline justify-between">
         <div>
@@ -207,7 +211,7 @@ export function BookingPanel({
       </div>
 
       {/* Stay Type Tabs */}
-      <div className="mt-5 grid grid-cols-3 overflow-hidden rounded-full bg-muted p-1 text-sm font-semibold">
+      <div className="mt-5 grid grid-cols-3 gap-1 rounded-[var(--radius-md)] bg-muted p-1 text-sm font-semibold">
         {(["hourly", "overnight", "daily"] as StayType[]).map((type) => (
           <button
             key={type}
@@ -216,8 +220,8 @@ export function BookingPanel({
               setStayType(type);
               setDetailsOpen(false);
             }}
-            className={`rounded-full px-3 py-2 capitalize transition-all active:scale-95 ${
-              stayType === type ? "bg-primary text-white" : "text-muted-foreground hover:text-foreground"
+            className={`rounded-[calc(var(--radius-md)-0.25rem)] px-2 py-2 transition-all active:scale-95 ${
+              stayType === type ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             {t(`booking.${type}`)}
@@ -226,10 +230,10 @@ export function BookingPanel({
       </div>
 
       {/* Form Fields */}
-      <div className="mt-5 grid grid-cols-2 gap-2 rounded-[var(--radius-md)] bg-muted/50 p-2">
+      <div className="mt-5 grid grid-cols-2 gap-2 rounded-[var(--radius-lg)] bg-muted/55 p-2">
         {/* Room Selector dropdown (shown when there are multiple rooms) */}
         {rooms.length > 1 ? (
-          <label className="col-span-2 block rounded-xl bg-card px-3 py-3 border border-transparent hover:border-primary/20">
+          <label className="col-span-2 block rounded-[var(--radius-md)] border border-border bg-card px-3 py-3 hover:border-primary/40">
             <span className="block text-xs font-semibold text-primary">{t("booking.select_room")}</span>
             <select
               value={selectedRoomId}
@@ -249,7 +253,7 @@ export function BookingPanel({
         ) : null}
 
         {/* Date Selector */}
-        <label className="rounded-xl bg-card px-3 py-3 col-span-1">
+        <label className="col-span-1 rounded-[var(--radius-md)] border border-border bg-card px-3 py-3">
           <span className="block text-xs font-semibold">{t("booking.date_label")}</span>
           <Input
             type="date"
@@ -262,7 +266,7 @@ export function BookingPanel({
 
         {/* Start Time / Checkout Date / Overnight package selectors */}
         {stayType === "daily" ? (
-          <label className="rounded-xl bg-card px-3 py-3 col-span-1">
+          <label className="col-span-1 rounded-[var(--radius-md)] border border-border bg-card px-3 py-3">
             <span className="block text-xs font-semibold">{t("booking.checkout_label")}</span>
             <Input
               type="date"
@@ -273,7 +277,7 @@ export function BookingPanel({
             />
           </label>
         ) : stayType === "overnight" ? (
-          <label className="rounded-xl bg-card px-3 py-3 col-span-1">
+          <label className="col-span-1 rounded-[var(--radius-md)] border border-border bg-card px-3 py-3">
             <span className="block text-xs font-semibold">{t("booking.select_overnight_slot")}</span>
             <select
               value={selectedOvernightId}
@@ -288,7 +292,7 @@ export function BookingPanel({
             </select>
           </label>
         ) : (
-          <label className="rounded-xl bg-card px-3 py-3 col-span-1">
+          <label className="col-span-1 rounded-[var(--radius-md)] border border-border bg-card px-3 py-3">
             <span className="block text-xs font-semibold">{t("booking.checkin_label")}</span>
             <select
               value={startTime}
@@ -306,7 +310,7 @@ export function BookingPanel({
 
         {/* Hourly Duration Selector */}
         {stayType === "hourly" ? (
-          <label className="rounded-xl bg-card px-3 py-3 col-span-1">
+          <label className="col-span-1 rounded-[var(--radius-md)] border border-border bg-card px-3 py-3">
             <span className="block text-xs font-semibold">{t("booking.duration_label")}</span>
             <select
               value={durationHours}
@@ -323,7 +327,7 @@ export function BookingPanel({
         ) : null}
 
         {/* Guests Selector */}
-        <label className={`${stayType === "hourly" ? "col-span-1" : "col-span-1"} rounded-xl bg-card px-3 py-3`}>
+        <label className={`${stayType === "hourly" ? "col-span-1" : "col-span-1"} rounded-[var(--radius-md)] border border-border bg-card px-3 py-3`}>
           <span className="block text-xs font-semibold">{t("booking.guests_label")}</span>
           <select
             value={guestCount}
@@ -383,7 +387,7 @@ export function BookingPanel({
 
       {/* Receipt Summary */}
       {validWindow ? (
-        <div className="mt-5 grid gap-2 rounded-[var(--radius-md)] bg-muted/40 p-3 text-sm">
+        <div className="mt-5 hidden gap-2 rounded-[var(--radius-lg)] border border-border bg-muted/40 p-3 text-sm sm:grid">
           <div className="flex flex-col gap-1 text-muted-foreground border-b border-border pb-2">
             <span className="font-semibold text-foreground text-xs uppercase tracking-wider">{t("booking.select_room")}</span>
             <span className="text-foreground font-medium text-sm">{t(activeRoom.name)}</span>

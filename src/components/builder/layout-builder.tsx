@@ -126,8 +126,8 @@ export function LayoutBuilder({ initialSections }: { initialSections: StoredLayo
   }
 
   return (
-    <div className="grid min-h-[680px] overflow-hidden rounded-[var(--radius-lg)] bg-card shadow-[var(--shadow-sm)] ring-1 ring-black/[0.035] xl:grid-cols-[360px_1fr]">
-      <aside className="bg-card shadow-[0_1px_0_rgb(24_32_29_/_0.05)] xl:shadow-[1px_0_0_rgb(24_32_29_/_0.05)]">
+    <div className="grid min-h-[680px] overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-[var(--shadow-sm)] xl:grid-cols-[360px_1fr]">
+      <aside className="bg-card shadow-[0_1px_0_rgb(24_32_51_/_0.05)] xl:shadow-[1px_0_0_rgb(24_32_51_/_0.05)]">
         <div className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -193,7 +193,7 @@ export function LayoutBuilder({ initialSections }: { initialSections: StoredLayo
       </aside>
 
       <div className="min-w-0 bg-muted/50">
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-3 shadow-[0_1px_0_rgb(24_32_29_/_0.05)]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-card p-3">
           <div className="flex gap-1 rounded-xl bg-muted p-1">
             {[
               ["desktop", Monitor],
@@ -223,7 +223,7 @@ export function LayoutBuilder({ initialSections }: { initialSections: StoredLayo
         <div className="p-4 md:p-6">
           <div
             className={cn(
-              "mx-auto min-h-[560px] overflow-hidden rounded-xl bg-white text-[#18201d] shadow-[var(--shadow-md)] transition-all",
+              "mx-auto min-h-[560px] overflow-hidden rounded-[1.75rem] bg-[#fff9ef] text-[#182033] shadow-[var(--shadow-md)] transition-all",
               viewport === "desktop" && "max-w-5xl",
               viewport === "tablet" && "max-w-2xl",
               viewport === "mobile" && "max-w-[390px]",
@@ -240,21 +240,42 @@ export function LayoutBuilder({ initialSections }: { initialSections: StoredLayo
 function PreviewSection({ id }: { id: LayoutSectionId }) {
   if (id === "hero") {
     return (
-      <div className="bg-[linear-gradient(90deg,rgba(10,20,16,.75),rgba(10,20,16,.12)),url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1400&q=80')] bg-cover bg-center px-8 py-20 text-white">
-        <p className="text-xs font-bold uppercase tracking-wider">District One Studio, Saigon</p>
-        <h3 className="mt-3 max-w-xl font-display text-5xl font-semibold">Book a private room by the hour.</h3>
-        <button className="mt-6 rounded-xl bg-[#1f6f5f] px-5 py-3 text-sm font-semibold">Explore rooms</button>
+      <div className="relative min-h-[430px] overflow-hidden bg-[#fffdf8]">
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,#fffdf8_0%,rgba(255,253,248,.95)_35%,rgba(255,253,248,.42)_64%,transparent_100%),url('https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1400&q=85')] bg-cover bg-[64%_center]" />
+        <div className="relative flex min-h-[430px] flex-col justify-end px-7 pb-24 pt-10">
+          <p className="text-sm font-semibold text-[#89906e]">District One Studio</p>
+          <h3 className="mt-3 max-w-[10ch] font-display text-5xl font-semibold leading-[.98]">
+            Stay for a few hours or the night
+          </h3>
+          <div className="mt-4 h-1 w-16 rounded-full bg-[#f49a6c]" />
+          <p className="mt-5 max-w-[16rem] text-sm leading-6 text-[#6e6b66]">
+            Comfortable stays, on your terms.
+          </p>
+        </div>
       </div>
     );
   }
 
   if (id === "search") {
     return (
-      <div className="bg-[#f8f7f2] p-6">
-        <div className="grid gap-3 rounded-2xl bg-white p-4 shadow-sm md:grid-cols-[1fr_1fr_auto]">
-          <div><p className="text-xs font-semibold">Location</p><p className="mt-1 text-sm text-[#66706c]">District 1 or Thao Dien</p></div>
-          <div><p className="text-xs font-semibold">Date</p><p className="mt-1 text-sm text-[#66706c]">Tomorrow</p></div>
-          <button className="rounded-xl bg-[#1f6f5f] px-5 py-3 text-sm font-semibold text-white">Search</button>
+      <div className="-mt-16 bg-transparent px-5 pb-6">
+        <div className="rounded-[1.5rem] border border-[#eadfce] bg-[#fffdf8] p-3 shadow-[0_18px_42px_rgb(111_88_62_/_0.14)]">
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+            {["Place", "Date", "Guests"].map((label, index) => (
+              <div key={label} className={`rounded-xl border border-[#eadfce] bg-[#fff9ef] px-3 py-3 ${index === 0 ? "col-span-2 md:col-span-1" : ""}`}>
+                <p className="text-xs font-semibold text-[#6e6b66]">{label}</p>
+                <p className="mt-1 truncate text-sm font-semibold">{index === 0 ? "Bangalore" : index === 1 ? "May 24" : "2 guests"}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {["Short", "One day", "Overnight"].map((item, index) => (
+              <div key={item} className={`rounded-xl px-3 py-3 text-center text-sm font-semibold ${index === 0 ? "bg-[#fde5d7]" : "bg-[#f5ecdf]"}`}>
+                {item}
+              </div>
+            ))}
+          </div>
+          <button className="mt-3 w-full rounded-xl bg-[#f49a6c] px-5 py-3 text-sm font-semibold text-[#1f1720]">Find stays</button>
         </div>
       </div>
     );
@@ -262,11 +283,25 @@ function PreviewSection({ id }: { id: LayoutSectionId }) {
 
   if (id === "rooms") {
     return (
-      <div className="p-8">
-        <p className="font-display text-3xl font-semibold">Featured stays</p>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          {["City Nap Studio", "Work Break Room"].map((room) => (
-            <div key={room} className="rounded-xl bg-white p-5 shadow-sm"><div className="mb-8 h-28 rounded-lg bg-[#e8efe9]" /><p className="font-semibold">{room}</p><p className="mt-1 text-sm text-[#66706c]">From $18 / hour</p></div>
+      <div className="px-7 py-8">
+        <p className="text-sm font-semibold text-[#89906e]">Ho Chi Minh City</p>
+        <p className="mt-1 font-display text-3xl font-semibold">Featured stays</p>
+        <div className="mt-6 grid grid-cols-2 gap-4">
+          {[
+            ["City Nook", "Short", "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=700&q=85"],
+            ["Garden View", "Overnight", "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=700&q=85"],
+          ].map(([room, tag, image]) => (
+            <div key={room} className="overflow-hidden rounded-xl border border-[#eadfce] bg-[#fffdf8] shadow-sm">
+              <div className="relative h-32 bg-cover bg-center" style={{ backgroundImage: `url(${image})` }}>
+                <span className="absolute left-2 top-2 rounded-full bg-white px-2 py-1 text-xs font-semibold">{tag}</span>
+                <span className="absolute right-2 top-2 grid size-8 place-items-center rounded-full bg-white text-lg">♡</span>
+              </div>
+              <div className="p-3">
+                <p className="truncate text-sm font-semibold">{room}</p>
+                <p className="mt-1 text-xs text-[#6e6b66]">District 1</p>
+                <p className="mt-3 text-sm font-semibold">$18 <span className="font-normal text-[#6e6b66]">/ 3h</span></p>
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -276,7 +311,7 @@ function PreviewSection({ id }: { id: LayoutSectionId }) {
   if (id === "trust") {
     return (
       <div className="grid gap-3 p-6 sm:grid-cols-3">
-        {["Exact hours", "Private rooms", "Secure payment"].map((item) => <div key={item} className="rounded-xl bg-[#f8f7f2] p-4 text-sm font-semibold">{item}</div>)}
+        {["Self check-in", "Food delivery", "Game console"].map((item) => <div key={item} className="rounded-xl bg-[#f5ecdf] p-4 text-sm font-semibold">{item}</div>)}
       </div>
     );
   }
@@ -284,8 +319,8 @@ function PreviewSection({ id }: { id: LayoutSectionId }) {
   if (id === "gallery") {
     return (
       <div className="grid h-64 gap-2 p-6 sm:grid-cols-3">
-        <div className="rounded-xl bg-[#d9e5df] sm:col-span-2" />
-        <div className="grid gap-2"><div className="rounded-xl bg-[#e8efe9]" /><div className="rounded-xl bg-[#cfded5]" /></div>
+        <div className="rounded-xl bg-[#e8edda] sm:col-span-2" />
+        <div className="grid gap-2"><div className="rounded-xl bg-[#f5ecdf]" /><div className="rounded-xl bg-[#fde5d7]" /></div>
       </div>
     );
   }
@@ -295,7 +330,7 @@ function PreviewSection({ id }: { id: LayoutSectionId }) {
       <div className="p-8">
         <p className="font-display text-3xl font-semibold">Good for short stays</p>
         <div className="mt-5 flex flex-wrap gap-2">
-          {["Self check-in", "Smart TV", "Fast Wi-Fi", "Fresh towels"].map((item) => <span key={item} className="rounded-full bg-[#e8efe9] px-3 py-1 text-sm">{item}</span>)}
+          {["No staff", "Food delivery", "Nintendo Switch", "PS5 optional"].map((item) => <span key={item} className="rounded-full bg-[#e8edda] px-3 py-1 text-sm">{item}</span>)}
         </div>
       </div>
     );
@@ -304,7 +339,7 @@ function PreviewSection({ id }: { id: LayoutSectionId }) {
   return (
     <div className="p-8">
       <p className="font-display text-3xl font-semibold">Before guests arrive</p>
-      <p className="mt-4 text-sm text-[#66706c]">Hourly, overnight, and daily stays · Exact arrival time required.</p>
+      <p className="mt-4 text-sm text-[#66706c]">Self check-in · Food delivery friendly · Console options by room.</p>
     </div>
   );
 }

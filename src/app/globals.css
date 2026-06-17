@@ -1,45 +1,45 @@
 @import "tailwindcss";
 
 :root {
-  --color-background: #f8f7f2;
-  --color-foreground: #18201d;
-  --color-card: #ffffff;
-  --color-card-foreground: #18201d;
-  --color-primary: #1f6f5f;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #e8efe9;
-  --color-secondary-foreground: #194f44;
-  --color-muted: #efeee8;
-  --color-muted-foreground: #66706c;
-  --color-border: #ebe7dd;
-  --color-input: #ddd9cf;
-  --color-ring: #2a806e;
-  --color-accent: #d98d5f;
-  --color-success: #26815f;
-  --color-warning: #b86b1b;
-  --color-destructive: #b84949;
+  --color-background: #fff9ef;
+  --color-foreground: #182033;
+  --color-card: #fffdf8;
+  --color-card-foreground: #182033;
+  --color-primary: #f49a6c;
+  --color-primary-foreground: #1f1720;
+  --color-secondary: #e8edda;
+  --color-secondary-foreground: #566044;
+  --color-muted: #f5ecdf;
+  --color-muted-foreground: #6e6b66;
+  --color-border: #eadfce;
+  --color-input: #e7d9c8;
+  --color-ring: #f49a6c;
+  --color-accent: #89906e;
+  --color-success: #667a55;
+  --color-warning: #bb7b39;
+  --color-destructive: #c95f5f;
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
-  --radius-lg: 0.875rem;
-  --shadow-sm: 0 1px 3px rgb(24 32 29 / 0.05), 0 10px 24px rgb(24 32 29 / 0.04);
-  --shadow-md: 0 14px 36px rgb(24 32 29 / 0.09);
+  --radius-lg: 1rem;
+  --shadow-sm: 0 1px 2px rgb(24 32 51 / 0.04), 0 8px 18px rgb(111 88 62 / 0.06);
+  --shadow-md: 0 18px 42px rgb(111 88 62 / 0.14);
 }
 
 .dark {
-  --color-background: #111714;
-  --color-foreground: #edf1ee;
-  --color-card: #18201d;
-  --color-card-foreground: #edf1ee;
-  --color-primary: #73c6af;
-  --color-primary-foreground: #10201b;
-  --color-secondary: #23342e;
-  --color-secondary-foreground: #c9e8df;
-  --color-muted: #202824;
-  --color-muted-foreground: #a2ada8;
-  --color-border: #303a36;
-  --color-input: #3a4540;
-  --color-ring: #73c6af;
-  --color-accent: #eda779;
+  --color-background: #151923;
+  --color-foreground: #fff7ed;
+  --color-card: #202431;
+  --color-card-foreground: #fff7ed;
+  --color-primary: #ffb084;
+  --color-primary-foreground: #21161c;
+  --color-secondary: #303927;
+  --color-secondary-foreground: #edf3df;
+  --color-muted: #292b35;
+  --color-muted-foreground: #c6beb4;
+  --color-border: #3a3640;
+  --color-input: #45404a;
+  --color-ring: #ffb084;
+  --color-accent: #b7c08e;
 }
 
 @theme inline {
@@ -77,6 +77,9 @@ body {
   color: var(--color-foreground);
   font-family: "Avenir Next", "Segoe UI", sans-serif;
   text-rendering: optimizeLegibility;
+  background-image:
+    radial-gradient(circle at top left, rgb(244 154 108 / 0.12), transparent 28rem),
+    radial-gradient(circle at 85% 18%, rgb(137 144 110 / 0.12), transparent 24rem);
 }
 
 ::selection {

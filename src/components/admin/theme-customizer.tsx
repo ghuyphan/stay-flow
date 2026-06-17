@@ -38,14 +38,36 @@ export function ThemeCustomizer({ initialTheme }: { initialTheme: StoredTheme })
           <Button onClick={save}>{saved ? <><Check className="size-4" /> Saved</> : "Save theme"}</Button>
         </div>
       </div>
-      <div className="overflow-hidden rounded-2xl bg-[#f8f7f2] p-4 text-[#18201d] shadow-[var(--shadow-sm)] ring-1 ring-black/[0.035]">
-        <div className="overflow-hidden rounded-xl bg-white shadow-lg">
-          <div className="relative min-h-[300px] bg-[linear-gradient(90deg,rgba(10,20,16,.72),rgba(10,20,16,.08)),url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1400&q=80')] bg-cover bg-center p-6 text-white">
-            <p className="text-sm font-semibold">District One Studio</p>
-            <h3 className="mt-20 max-w-lg font-display text-4xl font-semibold">Saigon, by the hour.</h3>
-            <button className="mt-6 rounded-lg px-5 py-3 text-sm font-semibold text-white" style={{ background: theme.primary }}>View rooms</button>
+      <div className="overflow-hidden rounded-2xl border border-[#eadfce] bg-[#fff9ef] p-4 text-[#182033] shadow-[var(--shadow-sm)]">
+        <div className="overflow-hidden rounded-[1.5rem] bg-[#fffdf8] shadow-lg">
+          <div className="relative min-h-[330px] overflow-hidden">
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,#fffdf8_0%,rgba(255,253,248,.95)_36%,rgba(255,253,248,.42)_64%,transparent_100%),url('https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1400&q=85')] bg-cover bg-[64%_center]" />
+            <div className="relative p-6">
+              <p className="text-sm font-semibold" style={{ color: theme.accent }}>District One Studio</p>
+              <h3 className="mt-16 max-w-[10ch] font-display text-5xl font-semibold leading-[0.98]">
+                Stay for a few hours or the night
+              </h3>
+              <div className="mt-4 h-1 w-16 rounded-full" style={{ background: theme.primary }} />
+              <p className="mt-5 max-w-[16rem] text-sm leading-6 text-[#6e6b66]">
+                Comfortable stays, on your terms.
+              </p>
+            </div>
           </div>
-          <div className="flex gap-3 p-5">{["Hourly", "Overnight", "Easy check-in"].map((item) => <span key={item} className="text-sm font-medium">{item}</span>)}</div>
+          <div className="-mt-12 p-4">
+            <div className="relative rounded-[1.5rem] border border-[#eadfce] bg-[#fffdf8] p-3 shadow-[0_18px_42px_rgb(111_88_62_/_0.14)]">
+              <div className="grid grid-cols-3 gap-2">
+                {["Place", "Date", "Guests"].map((item) => (
+                  <div key={item} className="rounded-xl border border-[#eadfce] bg-[#fff9ef] px-3 py-3">
+                    <p className="text-xs font-semibold text-[#6e6b66]">{item}</p>
+                    <p className="mt-1 truncate text-sm font-semibold">{item === "Place" ? "Bangalore" : item === "Date" ? "May 24" : "2 guests"}</p>
+                  </div>
+                ))}
+              </div>
+              <button className="mt-3 w-full rounded-xl px-5 py-3 text-sm font-semibold text-[#1f1720]" style={{ background: theme.primary }}>
+                Find stays
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

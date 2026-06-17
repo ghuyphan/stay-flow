@@ -41,6 +41,7 @@ export type Room = {
   maxHours: number;
   price: number;
   image: string;
+  gallery?: string[];
   remaining: number;
 };
 

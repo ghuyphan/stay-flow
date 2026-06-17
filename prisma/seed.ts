@@ -47,7 +47,7 @@ async function main() {
       description:
         "Compact private studios for hourly, overnight, and daily stays near Ben Thanh.",
       cover:
-        "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1600&q=85",
+        "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1600&q=85",
     },
     {
       name: "Thao Dien Loft",
@@ -57,7 +57,7 @@ async function main() {
       description:
         "Design-led loft rooms for overnight resets and short city stays in District 2.",
       cover:
-        "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1600&q=85",
+        "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1600&q=85",
     },
   ];
 
@@ -84,9 +84,9 @@ async function main() {
         themeConfig: {
           create: {
             config: {
-              mode: "system",
-              primary: "#1F6F5F",
-              accent: "#D98D5F",
+              mode: "light",
+              primary: "#F49A6C",
+              accent: "#89906E",
               radius: "lg",
               font: "manrope",
             },

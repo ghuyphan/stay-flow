@@ -96,7 +96,7 @@ const initialData: AppData = {
       updatedAt: new Date(Date.UTC(2026, 5, 12 + index)).toISOString(),
     };
   }),
-  theme: { primary: "#1F6F5F", accent: "#D98D5F", mode: "light" },
+  theme: { primary: "#F49A6C", accent: "#89906E", mode: "light" },
   layout: [
     ...layoutSectionDefinitions.map((section) => ({
       id: section.id,
@@ -321,7 +321,7 @@ export const appRepository = {
       reviewCount: 0,
       gallery: [input.image],
       tags: ["New"],
-      amenities: ["Wi-Fi"],
+      amenities: ["Self check-in", "Food delivery friendly", "Nintendo Switch", "Fast Wi-Fi"],
       rooms: [
         {
           id: `room_${randomUUID().slice(0, 8)}`,
@@ -358,6 +358,7 @@ export const appRepository = {
           minHours: 2,
           maxHours: 12,
           image: input.image,
+          gallery: [input.image],
           remaining: 1,
         },
       ],

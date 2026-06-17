@@ -1,17 +1,17 @@
 import type { Homestay } from "@/lib/types";
 
 const districtOneGallery = [
-  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1600&q=85",
-  "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1200&q=85",
-  "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1200&q=85",
-  "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=85",
+  "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1600&q=85",
+  "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1200&q=85",
+  "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=85",
+  "https://images.unsplash.com/photo-1560448075-bb485b067938?auto=format&fit=crop&w=1200&q=85",
 ];
 
 const thaoDienGallery = [
-  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1600&q=85",
-  "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=85",
-  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=85",
-  "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=85",
+  "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1600&q=85",
+  "https://images.unsplash.com/photo-1617098900591-3f90928e8c54?auto=format&fit=crop&w=1200&q=85",
+  "https://images.unsplash.com/photo-1616047006789-b7af5afb8c20?auto=format&fit=crop&w=1200&q=85",
+  "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=85",
 ];
 
 export const homestays: Homestay[] = [
@@ -30,10 +30,11 @@ export const homestays: Homestay[] = [
     tags: ["Hourly", "Overnight"],
     amenities: [
       "Self check-in",
-      "Smart TV",
-      "Day-use desk",
+      "No staff check-in",
+      "Food delivery friendly",
+      "Nintendo Switch",
+      "PS5 optional",
       "Fast Wi-Fi",
-      "Fresh towels",
       "Secure parking",
     ],
     rooms: [
@@ -58,6 +59,7 @@ export const homestays: Homestay[] = [
         maxHours: 12,
         price: 112,
         image: districtOneGallery[1],
+        gallery: [districtOneGallery[1], districtOneGallery[2], districtOneGallery[3]],
         remaining: 2,
       },
       {
@@ -81,6 +83,7 @@ export const homestays: Homestay[] = [
         maxHours: 10,
         price: 78,
         image: districtOneGallery[2],
+        gallery: [districtOneGallery[2], districtOneGallery[1], districtOneGallery[3]],
         remaining: 1,
       },
     ],
@@ -100,11 +103,11 @@ export const homestays: Homestay[] = [
     tags: ["Short stay", "Self check-in"],
     amenities: [
       "Self check-in",
-      "Bathtub rooms",
+      "No staff check-in",
+      "Food delivery friendly",
+      "PS4 optional",
+      "Smart TV",
       "Fast Wi-Fi",
-      "Motorbike parking",
-      "Room service partners",
-      "Flexible checkout",
     ],
     rooms: [
       {
@@ -128,6 +131,7 @@ export const homestays: Homestay[] = [
         maxHours: 12,
         price: 92,
         image: thaoDienGallery[1],
+        gallery: [thaoDienGallery[1], thaoDienGallery[2], thaoDienGallery[3]],
         remaining: 3,
       },
       {
@@ -151,6 +155,7 @@ export const homestays: Homestay[] = [
         maxHours: 12,
         price: 118,
         image: thaoDienGallery[2],
+        gallery: [thaoDienGallery[2], thaoDienGallery[1], thaoDienGallery[3]],
         remaining: 1,
       },
     ],

@@ -39,7 +39,7 @@ export const layoutSectionDefinitions: LayoutSectionDefinition[] = [
   {
     id: "trust",
     name: "Trust points",
-    description: "Short proof points for hourly, overnight, and secure booking.",
+    description: "Short proof points for self check-in, food delivery, and privacy.",
     defaultEnabled: true,
   },
   {
@@ -51,7 +51,7 @@ export const layoutSectionDefinitions: LayoutSectionDefinition[] = [
   {
     id: "amenities",
     name: "Amenities",
-    description: "Highlights from the featured property amenities.",
+    description: "Gen Z-friendly extras such as consoles, delivery, and staffless arrival.",
     defaultEnabled: false,
   },
   {
@@ -65,4 +65,3 @@ export const layoutSectionDefinitions: LayoutSectionDefinition[] = [
 export function getLayoutSectionDefinition(id: string) {
   return layoutSectionDefinitions.find((section) => section.id === id);
 }
-

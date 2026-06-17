@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
+import { RoomDetailClient } from "@/components/public-site/room-detail-client";
 import { appRepository } from "@/server/repositories/app-repository";
 
 type PageProps = { params: Promise<{ slug: string; roomId: string }> };
@@ -19,5 +20,5 @@ export default async function RoomPage({ params }: PageProps) {
   const room = homestay?.rooms.find((item) => item.id === roomId);
   if (!homestay || !room) notFound();
 
-  redirect(`/homestays/${slug}?room=${roomId}`);
+  return <RoomDetailClient homestay={homestay} room={room} />;
 }
