@@ -8,7 +8,7 @@ export default async function AdminBookingsPage() {
   const bookings = await appRepository.listBookings();
   return (
     <div>
-      <PageHeader title="Bookings" description={`${bookings.length} reservations`} />
+      <PageHeader title="Đặt phòng" description={`${bookings.length} đơn đặt phòng`} />
       <AdminBookingTable initialBookings={bookings} />
     </div>
   );

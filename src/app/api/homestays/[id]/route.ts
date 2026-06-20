@@ -14,10 +14,10 @@ export async function PUT(
     const homestay = await appRepository.updateHomestay((await params).id, parsed.data);
     return homestay
       ? NextResponse.json(homestay)
-      : NextResponse.json({ error: "Homestay not found." }, { status: 404 });
+      : NextResponse.json({ error: "Không tìm thấy cơ sở." }, { status: 404 });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unable to update homestay." },
+      { error: error instanceof Error ? error.message : "Không thể cập nhật cơ sở." },
       { status: 400 },
     );
   }

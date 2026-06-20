@@ -1,28 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  --color-background: #fff9ef;
+  --color-background: #f8f8f4;
   --color-foreground: #182033;
-  --color-card: #fffdf8;
+  --color-card: #ffffff;
   --color-card-foreground: #182033;
-  --color-primary: #f49a6c;
+  --color-primary: #ff8b5f;
   --color-primary-foreground: #1f1720;
-  --color-secondary: #e8edda;
-  --color-secondary-foreground: #566044;
-  --color-muted: #f5ecdf;
+  --color-secondary: #f1eee8;
+  --color-secondary-foreground: #4d4a43;
+  --color-muted: #eff0ea;
   --color-muted-foreground: #6e6b66;
-  --color-border: #eadfce;
-  --color-input: #e7d9c8;
-  --color-ring: #f49a6c;
-  --color-accent: #89906e;
-  --color-success: #667a55;
-  --color-warning: #bb7b39;
+  --color-border: #e1e2da;
+  --color-input: #dfe1d7;
+  --color-ring: #ff8b5f;
+  --color-accent: #ff8b5f;
+  --color-success: #4d7d53;
+  --color-warning: #b0742d;
   --color-destructive: #c95f5f;
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
-  --shadow-sm: 0 1px 2px rgb(24 32 51 / 0.04), 0 8px 18px rgb(111 88 62 / 0.06);
-  --shadow-md: 0 18px 42px rgb(111 88 62 / 0.14);
+  --font-body: "Avenir Next", "Segoe UI", sans-serif;
+  --font-heading: Georgia, "Times New Roman", serif;
+  --section-y: 3rem;
+  --section-y-sm: 2rem;
+  --shadow-sm: 0 1px 2px rgb(24 32 51 / 0.04);
+  --shadow-md: 0 10px 26px rgb(111 88 62 / 0.1);
 }
 
 .dark {
@@ -32,14 +36,14 @@
   --color-card-foreground: #fff7ed;
   --color-primary: #ffb084;
   --color-primary-foreground: #21161c;
-  --color-secondary: #303927;
-  --color-secondary-foreground: #edf3df;
+  --color-secondary: #302f32;
+  --color-secondary-foreground: #f4eee7;
   --color-muted: #292b35;
   --color-muted-foreground: #c6beb4;
   --color-border: #3a3640;
   --color-input: #45404a;
   --color-ring: #ffb084;
-  --color-accent: #b7c08e;
+  --color-accent: #ffb084;
 }
 
 @theme inline {
@@ -60,8 +64,8 @@
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
   --color-destructive: var(--color-destructive);
-  --font-sans: "Avenir Next", "Segoe UI", sans-serif;
-  --font-display: Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-body);
+  --font-display: var(--font-heading);
 }
 
 * {
@@ -75,11 +79,18 @@ html {
 body {
   background: var(--color-background);
   color: var(--color-foreground);
-  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-family: var(--font-body);
   text-rendering: optimizeLegibility;
-  background-image:
-    radial-gradient(circle at top left, rgb(244 154 108 / 0.12), transparent 28rem),
-    radial-gradient(circle at 85% 18%, rgb(137 144 110 / 0.12), transparent 24rem);
+}
+
+[data-card-style="flat"] {
+  --shadow-sm: none;
+  --shadow-md: none;
+}
+
+[data-card-style="elevated"] {
+  --shadow-sm: 0 2px 8px rgb(24 32 51 / 0.08);
+  --shadow-md: 0 22px 48px rgb(111 88 62 / 0.18);
 }
 
 ::selection {
@@ -89,6 +100,122 @@ body {
 :focus-visible {
   outline: 3px solid color-mix(in srgb, var(--color-ring) 45%, transparent);
   outline-offset: 2px;
+}
+
+button,
+a,
+select,
+textarea,
+input {
+  transition-duration: 200ms;
+  transition-property: background-color, border-color, color, box-shadow, opacity, transform;
+  transition-timing-function: ease-out;
+}
+
+button:not(:disabled),
+select:not(:disabled),
+input:not(:disabled),
+textarea:not(:disabled) {
+  touch-action: manipulation;
+}
+
+select,
+textarea {
+  outline: none;
+}
+
+select:hover,
+textarea:hover {
+  border-color: color-mix(in srgb, var(--color-ring) 45%, var(--color-input));
+}
+
+select:focus,
+textarea:focus {
+  border-color: var(--color-ring);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-ring) 10%, transparent);
+}
+
+.interactive-surface {
+  transition: transform 200ms ease-out, box-shadow 200ms ease-out, border-color 200ms ease-out, background-color 200ms ease-out;
+}
+
+.interactive-surface:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--color-ring) 35%, var(--color-border));
+}
+
+.builder-toolbar {
+  animation: builder-toolbar-in 220ms ease-out both;
+}
+
+.builder-overlay-left {
+  animation: builder-panel-left-in 180ms ease-out both;
+}
+
+.builder-overlay-right {
+  animation: builder-panel-right-in 180ms ease-out both;
+}
+
+.builder-overlay-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.builder-overlay-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.builder-preview-surface {
+  transition: width 220ms ease-out, max-width 220ms ease-out, border-radius 220ms ease-out, box-shadow 220ms ease-out, transform 220ms ease-out;
+}
+
+.builder-tool-button {
+  transition: background-color 160ms ease-out, color 160ms ease-out, box-shadow 160ms ease-out, transform 160ms ease-out;
+}
+
+.builder-tool-button:hover {
+  transform: translateY(-1px);
+}
+
+.builder-tool-button:active {
+  transform: translateY(0) scale(0.96);
+}
+
+.site-header-surface {
+  transition: background-color 180ms ease-out, border-color 180ms ease-out, box-shadow 180ms ease-out, transform 180ms ease-out;
+}
+
+@keyframes builder-toolbar-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes builder-panel-left-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes builder-panel-right-in {
+  from {
+    opacity: 0;
+    transform: translateX(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
 }
 
 .text-balance {

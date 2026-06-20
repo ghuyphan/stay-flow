@@ -9,7 +9,7 @@ export function Badge({ className, tone = "neutral", ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold",
+        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold transition-colors duration-200",
         tone === "neutral" && "bg-muted text-muted-foreground",
         tone === "success" && "bg-success/12 text-success",
         tone === "warning" && "bg-warning/12 text-warning",

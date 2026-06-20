@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/layout/page-header";
 export default function NewHomestayPage() {
   return (
     <div>
-      <PageHeader title="New homestay" description="Add the basics. A starter room is created automatically." />
+      <PageHeader title="Cơ sở mới" description="Nhập thông tin cơ bản. Hệ thống sẽ tự tạo một phòng mẫu." />
       <HomestayForm />
     </div>
   );

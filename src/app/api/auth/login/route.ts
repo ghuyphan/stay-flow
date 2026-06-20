@@ -6,15 +6,15 @@ const schema = z.object({ password: z.string().min(1).max(200) });
 
 export async function POST(request: Request) {
   const parsed = schema.safeParse(await request.json());
-  if (!parsed.success) return NextResponse.json({ error: "Enter a password." }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: "Vui lòng nhập mật khẩu." }, { status: 400 });
 
   const configuredPassword = process.env.ADMIN_PASSWORD;
   if (!configuredPassword && process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "Admin login is not configured." }, { status: 503 });
+    return NextResponse.json({ error: "Chưa cấu hình đăng nhập quản trị." }, { status: 503 });
   }
   const password = configuredPassword ?? "stayflow-demo";
   if (parsed.data.password !== password) {
-    return NextResponse.json({ error: "Incorrect password." }, { status: 401 });
+    return NextResponse.json({ error: "Mật khẩu không đúng." }, { status: 401 });
   }
 
   const secret = process.env.SESSION_SECRET ?? "stayflow-local-session";

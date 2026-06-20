@@ -1,10 +1,10 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ButtonSkeleton } from "@/components/ui/skeleton";
 
 export function LoginForm() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export function LoginForm() {
     const result = (await response.json()) as { error?: string };
     setLoading(false);
     if (!response.ok) {
-      setError(result.error ?? "Unable to sign in.");
+      setError(result.error ?? "Không thể đăng nhập.");
       return;
     }
     router.push("/admin");
@@ -33,9 +33,9 @@ export function LoginForm() {
 
   return (
     <form onSubmit={submit} className="mt-8 grid gap-4">
-      <label className="text-sm font-semibold">Password<Input name="password" type="password" required autoFocus className="mt-2" /></label>
+      <label className="text-sm font-semibold">Mật khẩu<Input name="password" type="password" required autoFocus className="mt-2" /></label>
       {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
-      <Button type="submit" size="lg" disabled={loading}>{loading ? <Loader2 className="size-4 animate-spin" /> : null}Sign in</Button>
+      {loading ? <ButtonSkeleton className="min-h-12" /> : <Button type="submit" size="lg">Đăng nhập</Button>}
     </form>
   );
 }

@@ -1,14 +1,10 @@
-import { Badge } from "@/components/ui/badge";
+"use client";
 
-const labels: Record<string, string> = {
-  confirmed: "Confirmed",
-  pending_payment: "Pending payment",
-  checked_in: "Checked in",
-  paid: "Paid",
-  cancelled: "Cancelled",
-};
+import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/components/language-provider";
 
 export function BookingStatusBadge({ status }: { status: string }) {
+  const { t } = useLanguage();
   const tone = status === "pending_payment" ? "warning" : status === "cancelled" ? "neutral" : "success";
-  return <Badge tone={tone}>{labels[status] ?? status}</Badge>;
+  return <Badge tone={tone}>{t(`status.${status}`)}</Badge>;
 }

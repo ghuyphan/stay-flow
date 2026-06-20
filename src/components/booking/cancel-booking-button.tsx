@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ButtonSkeleton } from "@/components/ui/skeleton";
 
 export function CancelBookingButton({ bookingRef, accessToken }: { bookingRef: string; accessToken: string }) {
   const router = useRouter();
@@ -20,9 +21,11 @@ export function CancelBookingButton({ bookingRef, accessToken }: { bookingRef: s
     router.refresh();
   }
 
+  if (loading) return <ButtonSkeleton className="w-36" />;
+
   return (
-    <Button variant="outline" onClick={cancel} disabled={loading}>
-      {loading ? "Cancelling..." : "Cancel booking"}
+    <Button variant="outline" onClick={cancel}>
+      Cancel booking
     </Button>
   );
 }

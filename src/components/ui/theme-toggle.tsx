@@ -1,23 +1,21 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
-import { useSyncExternalStore } from "react";
-
-const emptySubscribe = () => () => undefined;
+import { usePreferences } from "@/components/language-provider";
 
 export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
-  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const { resolvedTheme, setThemeMode } = usePreferences();
+  const nextTheme = resolvedTheme === "dark" ? "light" : "dark";
 
   return (
     <button
       type="button"
-      aria-label="Toggle color theme"
+      aria-label={`Switch to ${nextTheme} mode`}
+      title={`Switch to ${nextTheme} mode`}
       className="grid size-11 place-items-center rounded-full bg-card text-foreground shadow-[var(--shadow-sm)] transition-colors hover:bg-muted"
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+      onClick={() => setThemeMode(nextTheme)}
     >
-      {mounted && resolvedTheme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+      {resolvedTheme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
     </button>
   );
 }

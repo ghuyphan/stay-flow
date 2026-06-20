@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { HomestaysClient } from "@/components/public-site/homestays-client";
+import { BuilderRenderer } from "@/components/builder/builder-renderer";
 import { appRepository } from "@/server/repositories/app-repository";
 
 export const metadata: Metadata = {
@@ -13,7 +13,10 @@ export default async function HomestaysPage({
   searchParams: Promise<{ location?: string; guests?: string }>;
 }) {
   const filters = await searchParams;
-  const homestays = await appRepository.listHomestays();
+  const [homestays, siteConfig] = await Promise.all([
+    appRepository.listHomestays(),
+    appRepository.getLiveSiteBuilder(),
+  ]);
   const location = filters.location?.toLowerCase().trim();
   const guestCount = Number(filters.guests ?? "1");
   const results = homestays.filter(
@@ -24,5 +27,5 @@ export default async function HomestaysPage({
       homestay.rooms.some((room) => room.guests >= guestCount),
   );
 
-  return <HomestaysClient results={results} />;
+  return <BuilderRenderer config={siteConfig} page={siteConfig.pages.homestays} context={{ routeId: "homestays", homestays, results }} />;
 }

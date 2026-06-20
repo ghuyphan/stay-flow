@@ -1,9 +1,10 @@
 # Supabase Setup
 
-StayFlow is currently runnable with the local JSON repository in `data/app-data.json`.
-The Prisma schema is prepared for Supabase Postgres, including hourly, overnight, and
-daily short-stay bookings. Switching runtime reads/writes from local JSON to Prisma is
-the next adapter step after credentials are available.
+StayFlow is runnable with either the local JSON repository in `data/app-data.json`
+or Supabase Postgres through the Prisma repository adapter. The admin UI calls the
+same repository interface in both modes, so homestays, rooms, bookings, payments,
+theme/layout builder settings, and AI knowledge can move to Supabase by changing
+environment variables and pushing the Prisma schema.
 
 ## 1. Create the project
 
@@ -18,7 +19,7 @@ the next adapter step after credentials are available.
 Copy `.env.example` to `.env` and fill these values:
 
 ```bash
-DATA_ADAPTER=local
+DATA_ADAPTER=prisma
 DATABASE_URL="postgresql://postgres:[password]@[host]:6543/postgres?pgbouncer=true"
 DIRECT_URL="postgresql://postgres:[password]@[host]:5432/postgres"
 NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
@@ -56,16 +57,15 @@ wired before hosts can upload files directly from the dashboard.
 
 Already prepared:
 
+- Runtime switch: `DATA_ADAPTER=local` uses JSON, `DATA_ADAPTER=prisma` uses Supabase Postgres.
+- Prisma-backed repository matching the admin/public `appRepository` methods.
 - Postgres schema for users, homestays, rooms, bookings, payments, layouts, theme, and AI knowledge.
-- Room pricing fields for `hourlyPrice`, `overnightPrice`, `dailyPrice`, `minHours`, and `maxHours`.
-- Booking fields for `stayType`, `durationHours`, and `durationLabel`.
+- Room fields used by the admin UI, including images, gallery, inventory, hourly blocks, overnight options, and daily pricing.
+- Booking fields for `accessToken`, `stayType`, `durationHours`, and `durationLabel`.
 - Prisma Postgres adapter helper in `src/server/db/prisma.ts`.
 
-Still pending before Supabase is the source of truth:
+Still pending after Supabase is the source of truth:
 
-- Implement a Prisma-backed repository matching `appRepository`.
-- Switch `DATA_ADAPTER=prisma` to select that repository at runtime.
 - Add Supabase Storage upload flows for room/property images.
 - Decide whether owner login stays password-based or moves to Supabase Auth.
 - Add Row Level Security policies if client-side Supabase access is introduced.
-

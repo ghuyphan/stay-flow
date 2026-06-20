@@ -5,7 +5,7 @@ describe("calculatePrice", () => {
   it("calculates nights and server fees", () => {
     expect(
       calculatePrice({
-        nightlyRate: 100,
+        nightlyRate: 2500000,
         checkIn: new Date("2026-08-01"),
         checkOut: new Date("2026-08-04"),
       }),
@@ -14,12 +14,12 @@ describe("calculatePrice", () => {
       durationHours: 72,
       stayType: "daily",
       durationLabel: "3 nights",
-      subtotal: 300,
-      fees: 24,
-      taxes: 30,
+      subtotal: 7500000,
+      fees: 600000,
+      taxes: 750000,
       discount: 0,
-      total: 354,
-      currency: "USD",
+      total: 8850000,
+      currency: "VND",
     });
   });
 
@@ -27,9 +27,9 @@ describe("calculatePrice", () => {
     expect(
       calculateStayPrice({
         stayType: "hourly",
-        hourlyRate: 20,
-        overnightRate: 60,
-        dailyRate: 100,
+        hourlyRate: 500000,
+        overnightRate: 1500000,
+        dailyRate: 2500000,
         checkIn: new Date("2026-08-01T14:00:00"),
         checkOut: new Date("2026-08-01T18:00:00"),
       }),
@@ -37,8 +37,8 @@ describe("calculatePrice", () => {
       stayType: "hourly",
       durationHours: 4,
       durationLabel: "4 hours",
-      subtotal: 80,
-      total: 94,
+      subtotal: 2000000,
+      total: 2360000,
     });
   });
 
@@ -46,9 +46,9 @@ describe("calculatePrice", () => {
     expect(
       calculateStayPrice({
         stayType: "overnight",
-        hourlyRate: 20,
-        overnightRate: 60,
-        dailyRate: 100,
+        hourlyRate: 500000,
+        overnightRate: 1500000,
+        dailyRate: 2500000,
         checkIn: new Date("2026-08-01T21:00:00"),
         checkOut: new Date("2026-08-02T09:00:00"),
       }),
@@ -56,8 +56,8 @@ describe("calculatePrice", () => {
       stayType: "overnight",
       durationHours: 12,
       durationLabel: "overnight",
-      subtotal: 60,
-      total: 71,
+      subtotal: 1500000,
+      total: 1770000,
     });
   });
 });

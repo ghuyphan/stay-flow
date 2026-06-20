@@ -1,67 +1,104 @@
 "use client";
 
-import { ArrowRight, Clock3, CreditCard, MapPin, ShieldCheck } from "lucide-react";
+import { ArrowRight, Gamepad2, KeyRound, MapPin, Sparkles, Star, Utensils, Wifi } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { HomestayCard } from "@/components/public-site/homestay-card";
 import { SearchBar } from "@/components/public-site/search-bar";
 import type { Homestay } from "@/lib/types";
-import type { StoredLayoutSection } from "@/server/repositories/app-repository";
+import type { BuilderIconName, SiteBuilderConfig, SiteSectionInstance } from "@/lib/site-builder";
+import { textForLanguage } from "@/lib/site-builder";
 import { useLanguage } from "@/components/language-provider";
+import { cn } from "@/lib/utils";
 
 type HomeClientProps = {
   homestays: Homestay[];
-  layout: StoredLayoutSection[];
+  siteConfig: SiteBuilderConfig;
+  builderEditing?: {
+    selectedSectionId?: string;
+    onSelectSection?: (sectionId: string) => void;
+    onTextChange?: (sectionId: string, field: "eyebrow" | "title" | "subtitle", value: string, language: "en" | "vi") => void;
+  };
 };
 
-export function HomeClient({ homestays, layout }: HomeClientProps) {
-  const { t } = useLanguage();
-  const featured = homestays.slice(0, 4);
-  const hero = featured[0];
+const iconMap: Record<BuilderIconName, typeof Sparkles> = {
+  sparkles: Sparkles,
+  key: KeyRound,
+  utensils: Utensils,
+  gamepad: Gamepad2,
+  wifi: Wifi,
+  map: MapPin,
+  star: Star,
+};
+
+export function HomeClient({ homestays, siteConfig, builderEditing }: HomeClientProps) {
+  const { language, t } = useLanguage();
+  const hero = homestays[0];
   if (!hero) return null;
-  const heroImage = hero.rooms[0]?.image ?? hero.gallery[1] ?? hero.image;
-  const visibleSections = layout.filter((section) => section.enabled);
-  const heroVisible = visibleSections.some((section) => section.id === "hero");
+  const visibleSections = siteConfig.pages.home.sections.filter((section) => section.enabled);
 
   return (
     <>
-      {visibleSections.map((section) => {
-        if (section.id === "hero") {
+      {visibleSections.map((section, index) => {
+        if (section.type === "hero") {
+          const image = section.props.image || hero.rooms[0]?.image || hero.gallery[1] || hero.image;
+          const overlay =
+            section.style.overlay === "strong"
+              ? "bg-[linear-gradient(90deg,var(--color-card)_0%,rgb(255_255_255_/_0.9)_42%,rgb(255_255_255_/_0.22)_72%,transparent_100%)]"
+              : section.style.overlay === "none"
+                ? "bg-transparent"
+                : "bg-[linear-gradient(90deg,var(--color-card)_0%,rgb(255_255_255_/_0.82)_34%,rgb(255_255_255_/_0.2)_64%,transparent_100%)]";
           return (
-            <section key={section.id} className="pt-0 md:py-10">
+            <section key={section.id} className="pt-0 md:py-[var(--section-y-sm)]">
               <Container>
-                <div className="relative -mx-4 min-h-[500px] overflow-hidden bg-card md:mx-0 md:min-h-[560px] md:rounded-[calc(var(--radius-lg)+0.75rem)] md:border md:border-border md:shadow-[var(--shadow-sm)]">
+                <div className="relative -mx-4 min-h-[420px] overflow-hidden bg-card shadow-[var(--shadow-md)] md:mx-0 md:min-h-[500px] md:rounded-[var(--radius-lg)] md:border md:border-border">
                   <Image
-                    src={heroImage}
-                    alt={`${t(hero.name)} in ${t(hero.location)}`}
+                    src={image}
+                    alt={textForLanguage(section.props.title, language) || `${t(hero.name)} in ${t(hero.location)}`}
                     fill
                     loading="eager"
                     priority
                     className="object-cover object-[64%_center]"
                     sizes="100vw"
                   />
-                  <div className="absolute inset-0 bg-[linear-gradient(90deg,var(--color-card)_0%,rgb(255_253_248_/_0.96)_31%,rgb(255_253_248_/_0.58)_55%,transparent_100%)]" />
-                  <div className="absolute inset-x-0 bottom-0 h-52 bg-gradient-to-t from-card via-card/72 to-transparent md:hidden" />
-                  <div className="relative flex min-h-[500px] max-w-xl flex-col justify-between p-6 md:min-h-[560px] md:p-10">
-                    <div />
-                    <div className="pb-20 pt-6 md:pb-20">
-                      <p className="flex items-center gap-1.5 text-sm font-semibold text-accent md:hidden">
+                  <div className={`absolute inset-0 ${overlay}`} />
+                  <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-card via-card/60 to-transparent md:hidden" />
+                  <div className="relative flex min-h-[420px] max-w-lg flex-col justify-end p-6 md:min-h-[500px] md:p-10">
+                    <div className="pb-16 pt-6 md:pb-16">
+                      <p className="flex items-center gap-1.5 text-sm font-semibold text-accent">
                         <MapPin className="size-4" />
-                        {t(hero.location)}
+                        <EditablePreviewText
+                          value={textForLanguage(section.props.eyebrow, language) || t(hero.location)}
+                          enabled={Boolean(builderEditing?.onTextChange)}
+                          selected={builderEditing?.selectedSectionId === section.id}
+                          onFocus={() => builderEditing?.onSelectSection?.(section.id)}
+                          onCommit={(value) => builderEditing?.onTextChange?.(section.id, "eyebrow", value, language)}
+                        />
                       </p>
-                      <h1 className="mt-3 max-w-[10.5ch] font-display text-[3.25rem] font-semibold leading-[0.98] tracking-tight md:text-6xl">
-                        {t("hero.title")}
+                      <h1 className="mt-3 max-w-[11ch] font-display text-[2.75rem] font-semibold leading-none md:text-6xl">
+                        <EditablePreviewText
+                          value={textForLanguage(section.props.title, language)}
+                          enabled={Boolean(builderEditing?.onTextChange)}
+                          selected={builderEditing?.selectedSectionId === section.id}
+                          onFocus={() => builderEditing?.onSelectSection?.(section.id)}
+                          onCommit={(value) => builderEditing?.onTextChange?.(section.id, "title", value, language)}
+                        />
                       </h1>
-                      <div className="mt-4 h-1 w-16 rounded-full bg-primary md:mt-5" />
-                      <p className="mt-5 max-w-[16rem] text-base leading-7 text-muted-foreground">
-                        {t("hero.subtitle")}
+                      <p className="mt-4 max-w-[18rem] text-sm leading-6 text-muted-foreground md:text-base">
+                        <EditablePreviewText
+                          value={textForLanguage(section.props.subtitle, language)}
+                          enabled={Boolean(builderEditing?.onTextChange)}
+                          selected={builderEditing?.selectedSectionId === section.id}
+                          onFocus={() => builderEditing?.onSelectSection?.(section.id)}
+                          onCommit={(value) => builderEditing?.onTextChange?.(section.id, "subtitle", value, language)}
+                        />
                       </p>
-                    </div>
-                    <div className="hidden flex-wrap gap-2 text-sm font-semibold text-muted-foreground md:flex">
-                      <span className="rounded-full bg-card/90 px-3 py-1.5 shadow-sm">Short</span>
-                      <span className="rounded-full bg-card/90 px-3 py-1.5 shadow-sm">One day</span>
-                      <span className="rounded-full bg-card/90 px-3 py-1.5 shadow-sm">Overnight</span>
+                      {section.props.primaryCta?.href ? (
+                        <Link href={section.props.primaryCta.href} className="mt-6 inline-flex rounded-full bg-foreground px-5 py-3 text-sm font-semibold text-background transition hover:bg-foreground/85">
+                          {textForLanguage(section.props.primaryCta.label, language)}
+                        </Link>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -70,79 +107,60 @@ export function HomeClient({ homestays, layout }: HomeClientProps) {
           );
         }
 
-        if (section.id === "search") {
+        if (section.type === "search") {
+          const followsHero = visibleSections[index - 1]?.type === "hero";
           return (
-            <section key={section.id} className={heroVisible ? "relative z-10 -mt-20 pb-8 md:-mt-12" : "py-8"}>
+            <section key={section.id} className={followsHero ? "relative z-10 -mt-14 pb-[var(--section-y-sm)] md:-mt-10" : "py-[var(--section-y-sm)]"}>
               <Container>
-                <div className="mx-auto max-w-5xl px-1 md:px-6">
-                  <SearchBar />
+                <div className="mx-auto max-w-4xl px-1 md:px-0">
+                  <SearchBar
+                    defaultLocation={section.props.defaultLocation}
+                    enabledStayTypes={section.props.enabledStayTypes}
+                  />
                 </div>
               </Container>
             </section>
           );
         }
 
-        if (section.id === "rooms") {
-          return (
-            <section key={section.id} className="py-12 md:py-16">
-              <Container>
-                <div className="flex items-end justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-semibold text-accent">{t("home.featured_subtitle")}</p>
-                    <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">{t("home.featured_title")}</h2>
-                  </div>
-                  <Link href="/homestays" className="hidden items-center gap-2 rounded-full bg-muted px-4 py-2 text-sm font-semibold transition-colors hover:bg-secondary sm:flex">
-                    {t("home.view_all")} <ArrowRight className="size-4" />
-                  </Link>
-                </div>
-                <div className="mt-7 grid grid-cols-2 gap-4 lg:grid-cols-4">
-                  {featured.map((homestay) => (
-                    <HomestayCard key={homestay.id} homestay={homestay} />
-                  ))}
-                </div>
-                <Link href="/homestays" className="mt-6 flex items-center justify-center gap-2 rounded-[var(--radius-md)] bg-muted px-4 py-3 text-sm font-semibold sm:hidden">
-                  {t("home.view_all")} <ArrowRight className="size-4" />
-                </Link>
-              </Container>
-            </section>
-          );
+        if (section.type === "featuredStays") {
+          return <FeaturedStaysSection key={section.id} section={section} homestays={homestays} />;
         }
 
-        if (section.id === "trust") {
-          const items = [
-            { icon: Clock3, title: t("home.trust_1_title"), body: t("home.trust_1_desc") },
-            { icon: ShieldCheck, title: t("home.trust_2_title"), body: t("home.trust_2_desc") },
-            { icon: CreditCard, title: t("home.trust_3_title"), body: t("home.trust_3_desc") },
-          ];
+        if (section.type === "trust") {
+          const items = section.props.items ?? [];
           return (
-            <section key={section.id} className="py-12">
+            <section key={section.id} className="py-[calc(var(--section-y-sm)*0.75)]">
               <Container>
-                <div className="grid gap-4 md:grid-cols-3">
-                  {items.map(({ icon: Icon, title, body }) => (
-                    <div key={title} className="rounded-[var(--radius-lg)] border border-border bg-card/70 p-5">
-                      <span className="grid size-10 place-items-center rounded-full bg-primary/20 text-primary">
-                        <Icon className="size-5" />
-                      </span>
-                      <h2 className="mt-4 font-semibold">{title}</h2>
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">{body}</p>
-                    </div>
-                  ))}
+                <div className="grid grid-cols-1 gap-px overflow-hidden rounded-[var(--radius-lg)] border border-border bg-border sm:grid-cols-3">
+                  {items.map((item) => {
+                    const Icon = iconMap[item.icon ?? "sparkles"] ?? Sparkles;
+                    return (
+                      <div key={item.id} title={textForLanguage(item.body, language)} className="grid min-h-24 place-items-center bg-card p-3 text-center">
+                        <span className="grid size-9 place-items-center rounded-full bg-muted text-foreground">
+                          <Icon className="size-5" />
+                        </span>
+                        <h2 className="mt-2 text-xs font-semibold leading-tight md:text-sm">{textForLanguage(item.title, language)}</h2>
+                      </div>
+                    );
+                  })}
                 </div>
               </Container>
             </section>
           );
         }
 
-        if (section.id === "gallery") {
+        if (section.type === "gallery") {
+          const images = (section.props.images?.length ? section.props.images : hero.gallery).slice(0, 4);
           return (
-            <section key={section.id} className="py-12">
+            <section key={section.id} className="py-[var(--section-y-sm)]">
               <Container>
-                <div className="grid h-[320px] gap-3 overflow-hidden rounded-[calc(var(--radius-lg)+0.5rem)] md:grid-cols-3">
-                  {hero.gallery.slice(0, 3).map((image, index) => (
-                    <div key={image} className={`relative ${index === 0 ? "md:col-span-2" : ""}`}>
+                <div className="grid h-[300px] gap-2 overflow-hidden rounded-[var(--radius-lg)] md:grid-cols-3">
+                  {images.slice(0, 3).map((image, imageIndex) => (
+                    <div key={`${image}-${imageIndex}`} className={`relative ${imageIndex === 0 ? "md:col-span-2" : ""}`}>
                       <Image
                         src={image}
-                        alt={`${t(hero.name)} gallery ${index + 1}`}
+                        alt={`${t(hero.name)} gallery ${imageIndex + 1}`}
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 33vw"
@@ -155,17 +173,19 @@ export function HomeClient({ homestays, layout }: HomeClientProps) {
           );
         }
 
-        if (section.id === "amenities") {
+        if (section.type === "amenities") {
+          const items = section.props.items?.length
+            ? section.props.items.map((item) => textForLanguage(item.title, language))
+            : hero.amenities.map((amenity) => t(amenity));
           return (
-            <section key={section.id} className="py-12">
+            <section key={section.id} className="py-[var(--section-y-sm)]">
               <Container>
-                <div className="rounded-[var(--radius-lg)] border border-border bg-card/70 p-6">
-                  <p className="text-sm font-semibold text-accent">{t(hero.name)}</p>
-                  <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">{t("home.amenities_title")}</h2>
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {hero.amenities.map((amenity) => (
-                      <span key={amenity} className="rounded-full bg-secondary px-3 py-1.5 text-sm font-semibold text-secondary-foreground">
-                        {t(amenity)}
+                <div>
+                  <h2 className="text-xl font-semibold tracking-tight">{textForLanguage(section.props.title, language)}</h2>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {items.map((amenity) => (
+                      <span key={amenity} className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                        {amenity}
                       </span>
                     ))}
                   </div>
@@ -175,25 +195,18 @@ export function HomeClient({ homestays, layout }: HomeClientProps) {
           );
         }
 
-        if (section.id === "faq") {
+        if (section.type === "faq") {
           return (
-            <section key={section.id} className="py-12 md:pb-20">
+            <section key={section.id} className="py-[var(--section-y-sm)] md:pb-[calc(var(--section-y)*1.35)]">
               <Container>
-                <div className="grid gap-6 rounded-[var(--radius-lg)] border border-border bg-card/70 p-6 md:grid-cols-[0.8fr_1.2fr]">
-                  <div>
-                    <p className="text-sm font-semibold text-accent">FAQ</p>
-                    <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">{t("home.faq_title")}</h2>
-                  </div>
-                  <div className="grid gap-5">
-                    <div>
-                      <h3 className="font-semibold">{t("home.faq_1_q")}</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">{t("home.faq_1_a")}</p>
+                <h2 className="mb-4 text-xl font-semibold tracking-tight">{textForLanguage(section.props.title, language)}</h2>
+                <div className="grid gap-2 md:grid-cols-2">
+                  {(section.props.faqs ?? []).map((faq) => (
+                    <div key={faq.id} className="border-t border-border py-4">
+                      <h3 className="font-semibold">{textForLanguage(faq.question, language)}</h3>
+                      <p className="mt-1 line-clamp-3 text-sm text-muted-foreground">{textForLanguage(faq.answer, language)}</p>
                     </div>
-                    <div>
-                      <h3 className="font-semibold">{t("home.faq_2_q")}</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">{t("home.faq_2_a")}</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </Container>
             </section>
@@ -203,5 +216,84 @@ export function HomeClient({ homestays, layout }: HomeClientProps) {
         return null;
       })}
     </>
+  );
+}
+
+function EditablePreviewText({
+  value,
+  enabled,
+  selected,
+  onFocus,
+  onCommit,
+}: {
+  value: string;
+  enabled: boolean;
+  selected: boolean;
+  onFocus: () => void;
+  onCommit: (value: string) => void;
+}) {
+  if (!enabled) return <>{value}</>;
+
+  return (
+    <span
+      data-builder-editable="true"
+      contentEditable
+      suppressContentEditableWarning
+      role="textbox"
+      tabIndex={0}
+      className={cn(
+        "-mx-1 inline-block max-w-full rounded-md px-1 outline-none transition",
+        "hover:bg-primary/10 focus:bg-card/80 focus:ring-2 focus:ring-primary/35",
+        selected && "bg-primary/10 ring-1 ring-primary/25",
+      )}
+      onFocus={onFocus}
+      onBlur={(event) => {
+        const nextValue = event.currentTarget.textContent?.trim() ?? "";
+        if (nextValue && nextValue !== value) onCommit(nextValue);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          event.currentTarget.blur();
+        }
+      }}
+    >
+      {value}
+    </span>
+  );
+}
+
+function FeaturedStaysSection({ section, homestays }: { section: SiteSectionInstance; homestays: Homestay[] }) {
+  const { language } = useLanguage();
+  const selected = section.props.source === "manual" && section.props.homestayIds?.length
+    ? section.props.homestayIds.flatMap((id) => homestays.find((homestay) => homestay.id === id) ?? [])
+    : homestays.slice(0, section.props.itemCount ?? 4);
+
+  return (
+    <section className="py-[var(--section-y-sm)] md:py-[var(--section-y)]">
+      <Container>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">{textForLanguage(section.props.eyebrow, language)}</p>
+            <h2 className="mt-1 text-2xl font-semibold tracking-tight md:text-3xl">{textForLanguage(section.props.title, language)}</h2>
+          </div>
+          {section.props.primaryCta?.href ? (
+            <Link href={section.props.primaryCta.href} className="hidden items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background transition-colors hover:bg-foreground/85 sm:flex">
+              {textForLanguage(section.props.primaryCta.label, language)} <ArrowRight className="size-4" />
+            </Link>
+          ) : null}
+        </div>
+        <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-6 lg:grid-cols-4">
+          {selected.map((homestay) => (
+            <HomestayCard key={homestay.id} homestay={homestay} />
+          ))}
+        </div>
+        {section.props.primaryCta?.href ? (
+          <Link href={section.props.primaryCta.href} className="mt-6 flex items-center justify-center gap-2 rounded-[var(--radius-md)] bg-muted px-4 py-3 text-sm font-semibold sm:hidden">
+            {textForLanguage(section.props.primaryCta.label, language)} <ArrowRight className="size-4" />
+          </Link>
+        ) : null}
+      </Container>
+    </section>
   );
 }

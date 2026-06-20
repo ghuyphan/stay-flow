@@ -1,19 +1,22 @@
 "use client";
 
-import { Bot, Loader2, MessageCircle, Send, X } from "lucide-react";
+import { Bot, MessageCircle, Send, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/components/language-provider";
 
 type Message = { role: "assistant" | "user"; content: string };
 
 export function AIChatWidget() {
+  const { language, t } = useLanguage();
+  const initialMessage = t("ai.initial");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Hi. Ask me about a stay or paste a booking reference." },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const visibleMessages = messages.length ? messages : [{ role: "assistant" as const, content: initialMessage }];
 
   async function send(event: React.FormEvent) {
     event.preventDefault();
@@ -25,13 +28,13 @@ export function AIChatWidget() {
     const response = await fetch("/api/ai/chat", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ message: content }),
+      body: JSON.stringify({ message: content, language }),
     });
     const result = (await response.json()) as { reply?: string };
     setLoading(false);
     setMessages((current) => [
       ...current,
-      { role: "assistant", content: result.reply ?? "I couldn't answer that. Try again shortly." },
+      { role: "assistant", content: result.reply ?? t("ai.error") },
     ]);
   }
 
@@ -44,11 +47,11 @@ export function AIChatWidget() {
         >
           <header className="flex items-center gap-3 bg-muted/35 px-4 py-3">
             <span className="grid size-9 place-items-center rounded-full bg-primary text-primary-foreground"><Bot className="size-4" /></span>
-            <div className="flex-1"><p className="text-sm font-semibold">StayFlow support</p><p className="text-xs text-muted-foreground">Rooms, policies, bookings</p></div>
+            <div className="flex-1"><p className="text-sm font-semibold">{t("ai.title")}</p><p className="text-xs text-muted-foreground">{t("ai.subtitle")}</p></div>
             <button aria-label="Close support chat" onClick={() => setOpen(false)} className="grid size-9 place-items-center rounded-full hover:bg-muted"><X className="size-4" /></button>
           </header>
           <div className="flex-1 space-y-3 overflow-y-auto p-4">
-            {messages.map((item, index) => (
+            {visibleMessages.map((item, index) => (
               <p
                 key={index}
                 className={`max-w-[86%] rounded-2xl px-3.5 py-2.5 text-sm leading-5 ${
@@ -60,10 +63,15 @@ export function AIChatWidget() {
                 {item.content}
               </p>
             ))}
-            {loading ? <Loader2 className="size-4 animate-spin text-muted-foreground" /> : null}
+            {loading ? (
+              <div className="max-w-[86%] rounded-2xl bg-muted px-3.5 py-3">
+                <Skeleton className="h-3 w-32 bg-muted-foreground/20" />
+                <Skeleton className="mt-2 h-3 w-20 bg-muted-foreground/20" />
+              </div>
+            ) : null}
           </div>
           <form onSubmit={send} className="flex gap-2 bg-muted/25 p-3">
-            <Input value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Type a question..." aria-label="Support message" />
+            <Input value={message} onChange={(event) => setMessage(event.target.value)} placeholder={t("ai.placeholder")} aria-label="Support message" />
             <Button type="submit" size="sm" aria-label="Send message"><Send className="size-4" /></Button>
           </form>
         </section>

@@ -6,10 +6,18 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/language-provider";
 
-export function SearchBar({ compact = false }: { compact?: boolean }) {
+export function SearchBar({
+  compact = false,
+  defaultLocation = "",
+  enabledStayTypes = ["hourly", "daily", "overnight"],
+}: {
+  compact?: boolean;
+  defaultLocation?: string;
+  enabledStayTypes?: string[];
+}) {
   const router = useRouter();
   const { t } = useLanguage();
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState(defaultLocation);
   const [checkIn, setCheckIn] = useState("");
   const [guests, setGuests] = useState("2");
   const [stayType, setStayType] = useState("hourly");
@@ -28,18 +36,18 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
     { value: "hourly", label: t("booking.hourly"), icon: Clock3 },
     { value: "daily", label: t("booking.daily"), icon: Sun },
     { value: "overnight", label: t("booking.overnight"), icon: Moon },
-  ];
+  ].filter((item) => enabledStayTypes.includes(item.value));
 
   return (
     <form
       onSubmit={submit}
-      className={`rounded-[calc(var(--radius-lg)+0.5rem)] border border-border bg-card/96 p-3 shadow-[var(--shadow-md)] ${
-        compact ? "" : "md:p-4"
+      className={`rounded-[var(--radius-lg)] border border-border bg-card p-2 shadow-[var(--shadow-sm)] ${
+        compact ? "" : "md:p-3"
       }`}
     >
       <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-        <label className="col-span-2 flex min-h-16 items-center gap-3 rounded-[var(--radius-md)] border border-border bg-background/65 px-3 md:col-span-1">
-          <MapPin className="size-5 shrink-0 text-foreground/70 md:size-5" />
+        <label className="col-span-2 flex min-h-14 items-center gap-3 rounded-[var(--radius-md)] bg-background px-3 md:col-span-1">
+          <MapPin className="size-4 shrink-0 text-foreground/70" />
           <span className="min-w-0 flex-1">
             <span className="block text-xs font-semibold text-muted-foreground">{t("search.where")}</span>
             <input
@@ -50,8 +58,8 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
             />
           </span>
         </label>
-        <label className="flex min-h-16 items-center gap-3 rounded-[var(--radius-md)] border border-border bg-background/65 px-3">
-          <CalendarDays className="size-5 shrink-0 text-foreground/70" />
+        <label className="flex min-h-14 items-center gap-3 rounded-[var(--radius-md)] bg-background px-3">
+          <CalendarDays className="size-4 shrink-0 text-foreground/70" />
           <span className="min-w-0 flex-1">
             <span className="block text-xs font-semibold text-muted-foreground">{t("search.date")}</span>
             <input
@@ -62,8 +70,8 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
             />
           </span>
         </label>
-        <label className="flex min-h-16 items-center gap-3 rounded-[var(--radius-md)] border border-border bg-background/65 px-3">
-          <Users className="size-5 shrink-0 text-foreground/70" />
+        <label className="flex min-h-14 items-center gap-3 rounded-[var(--radius-md)] bg-background px-3">
+          <Users className="size-4 shrink-0 text-foreground/70" />
           <span className="min-w-0 flex-1">
             <span className="block text-xs font-semibold text-muted-foreground">{t("search.guests")}</span>
             <select
@@ -79,16 +87,16 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
         </label>
       </div>
       <div className="mt-3 grid gap-2">
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${Math.max(1, stayTypes.length)}, minmax(0, 1fr))` }}>
           {stayTypes.map(({ value, label, icon: Icon }) => (
             <button
               key={value}
               type="button"
               onClick={() => setStayType(value)}
-              className={`inline-flex min-h-12 items-center justify-center gap-1.5 rounded-[var(--radius-md)] border px-2 text-sm font-semibold transition-all active:scale-[0.98] md:gap-2 md:px-3 ${
+              className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[var(--radius-md)] px-2 text-sm font-semibold transition-all active:scale-[0.98] md:gap-2 md:px-3 ${
                 stayType === value
-                  ? "border-primary bg-primary/20 text-foreground"
-                  : "border-transparent bg-muted/70 text-foreground/75 hover:bg-muted"
+                  ? "bg-foreground text-background"
+                  : "bg-background text-foreground/70 hover:text-foreground"
               }`}
             >
               <Icon className="size-4" />

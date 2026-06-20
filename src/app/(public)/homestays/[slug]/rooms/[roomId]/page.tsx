@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { RoomDetailClient } from "@/components/public-site/room-detail-client";
+import { BuilderRenderer } from "@/components/builder/builder-renderer";
 import { appRepository } from "@/server/repositories/app-repository";
 
 type PageProps = { params: Promise<{ slug: string; roomId: string }> };
@@ -20,5 +20,6 @@ export default async function RoomPage({ params }: PageProps) {
   const room = homestay?.rooms.find((item) => item.id === roomId);
   if (!homestay || !room) notFound();
 
-  return <RoomDetailClient homestay={homestay} room={room} />;
+  const siteConfig = await appRepository.getLiveSiteBuilder();
+  return <BuilderRenderer config={siteConfig} page={siteConfig.pages.room} context={{ routeId: "room", homestays: [homestay], homestay, room }} />;
 }

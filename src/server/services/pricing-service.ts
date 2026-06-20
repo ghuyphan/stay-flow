@@ -26,7 +26,7 @@ export function calculatePrice({
   discount?: number;
 }): PriceQuote {
   const nights = differenceInCalendarDays(checkOut, checkIn);
-  if (nights < 1) throw new Error("Check-out must be after check-in.");
+  if (nights < 1) throw new Error("Giờ trả phòng phải sau giờ nhận phòng.");
 
   const subtotal = nightlyRate * nights;
   const fees = Math.round(subtotal * 0.08);
@@ -43,7 +43,7 @@ export function calculatePrice({
     taxes,
     discount,
     total,
-    currency: "USD",
+    currency: "VND",
   };
 }
 
@@ -74,7 +74,7 @@ export function calculateStayPrice({
   overnightOptions?: OvernightOption[];
   selectedOvernightOptionId?: string;
 }): PriceQuote {
-  if (checkOut <= checkIn) throw new Error("Check-out must be after check-in.");
+  if (checkOut <= checkIn) throw new Error("Giờ trả phòng phải sau giờ nhận phòng.");
 
   const rawHours = differenceInMinutes(checkOut, checkIn) / 60;
   const durationHours = Math.max(1, Math.ceil(rawHours));
@@ -96,7 +96,7 @@ export function calculateStayPrice({
         subtotal = hourlyBlockPrice + (durationHours - hourlyBlockHours) * hourlyExtraHourPrice;
       }
     } else {
-      subtotal = (hourlyRate ?? 18) * durationHours;
+      subtotal = (hourlyRate ?? 450000) * durationHours;
     }
     units = durationHours;
     durationLabel = `${durationHours} hour${durationHours === 1 ? "" : "s"}`;
@@ -105,10 +105,10 @@ export function calculateStayPrice({
       const option =
         overnightOptions.find((opt) => opt.id === selectedOvernightOptionId) ??
         overnightOptions[0];
-      subtotal = option ? option.price : (overnightRate ?? 49);
+      subtotal = option ? option.price : (overnightRate ?? 1225000);
       durationLabel = option ? `overnight (${option.checkInTime}-${option.checkOutTime})` : "overnight";
     } else {
-      subtotal = overnightRate ?? 49;
+      subtotal = overnightRate ?? 1225000;
       durationLabel = "overnight";
     }
     units = 1;
@@ -133,6 +133,6 @@ export function calculateStayPrice({
     taxes,
     discount,
     total,
-    currency: "USD",
+    currency: "VND",
   };
 }

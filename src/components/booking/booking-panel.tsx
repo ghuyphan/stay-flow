@@ -1,11 +1,11 @@
 "use client";
 
 import { addDays, addHours, format } from "date-fns";
-import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ButtonSkeleton } from "@/components/ui/skeleton";
 import type { StayType, Room } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
 import { useLanguage } from "@/components/language-provider";
@@ -371,10 +371,13 @@ export function BookingPanel({
             <Input name="request" className="mt-1" placeholder={t("booking.form_note_placeholder")} />
           </label>
           {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
-          <Button type="submit" size="lg" disabled={loading || !validWindow}>
-            {loading ? <Loader2 className="size-4 animate-spin" /> : null}
-            {t("booking.reserve")}
-          </Button>
+          {loading ? (
+            <ButtonSkeleton className="min-h-12" />
+          ) : (
+            <Button type="submit" size="lg" disabled={!validWindow}>
+              {t("booking.reserve")}
+            </Button>
+          )}
           <button
             type="button"
             className="text-sm text-muted-foreground hover:text-foreground"

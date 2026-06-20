@@ -1,9 +1,9 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ButtonSkeleton } from "@/components/ui/skeleton";
 
 export function PaymentActions({ bookingRef, accessToken }: { bookingRef: string; accessToken: string }) {
   const router = useRouter();
@@ -30,10 +30,13 @@ export function PaymentActions({ bookingRef, accessToken }: { bookingRef: string
   return (
     <div>
       {error ? <p className="mb-3 text-sm text-destructive">{error}</p> : null}
-      <Button onClick={pay} disabled={loading} size="lg" className="w-full">
-        {loading ? <Loader2 className="size-4 animate-spin" /> : null}
-        Pay securely
-      </Button>
+      {loading ? (
+        <ButtonSkeleton className="min-h-12" />
+      ) : (
+        <Button onClick={pay} size="lg" className="w-full">
+          Pay securely
+        </Button>
+      )}
       <p className="mt-3 text-center text-xs text-muted-foreground">
         Demo payment confirms through the server endpoint.
       </p>

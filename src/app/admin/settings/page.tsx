@@ -3,13 +3,38 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
 
 export default function SettingsPage() {
+  const settings = [
+    {
+      icon: Database,
+      title: "Nguồn dữ liệu",
+      body: "Bản demo đang dùng kho lưu cục bộ; schema Prisma PostgreSQL đã có sẵn cho triển khai thật.",
+    },
+    {
+      icon: ShieldCheck,
+      title: "Kiểm tra phía server",
+      body: "Tình trạng phòng, giá, trạng thái đặt phòng và thanh toán đều do server kiểm soát.",
+    },
+  ];
+
   return (
     <div>
-      <PageHeader title="Settings" description="Environment and platform status" />
-      <Card className="mt-5 grid gap-2 p-2">
-        <div className="flex items-center gap-4 p-4"><Database className="size-5 text-primary" /><div className="flex-1"><p className="font-semibold">Data adapter</p><p className="text-sm text-muted-foreground">Local persistent store for demo; Prisma PostgreSQL schema included for deployment.</p></div><CheckCircle2 className="size-5 text-success" /></div>
-        <div className="flex items-center gap-4 p-4"><ShieldCheck className="size-5 text-primary" /><div className="flex-1"><p className="font-semibold">Server validation</p><p className="text-sm text-muted-foreground">Availability, price, booking state, and payment state are server-controlled.</p></div><CheckCircle2 className="size-5 text-success" /></div>
-      </Card>
+      <PageHeader title="Cài đặt" description="Trạng thái môi trường và nền tảng" />
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+        {settings.map(({ icon: Icon, title, body }) => (
+          <Card key={title} className="p-5">
+            <div className="flex items-start gap-4">
+              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-muted text-primary"><Icon className="size-5" /></span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-semibold">{title}</p>
+                  <CheckCircle2 className="size-5 text-success" />
+                </div>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{body}</p>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

@@ -10,7 +10,7 @@ export default async function ManageHomestayPage({ params }: { params: Promise<{
   if (!homestay) notFound();
   return (
     <div>
-      <PageHeader title={homestay.name} description={`${homestay.location} · ${homestay.rooms.length} rooms`} />
+      <PageHeader title={homestay.name} description={`${homestay.location} · ${homestay.rooms.length} phòng`} />
       <HomestayForm homestay={homestay} />
       <RoomManager homestayId={homestay.id} initialRooms={homestay.rooms} />
     </div>

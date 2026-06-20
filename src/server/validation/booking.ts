@@ -15,6 +15,6 @@ export const createBookingSchema = z
     selectedOvernightOptionId: z.string().optional(),
   })
   .refine((value) => value.checkOut > value.checkIn, {
-    message: "Check-out must be after check-in.",
+    message: "Giờ trả phòng phải sau giờ nhận phòng.",
     path: ["checkOut"],
   });

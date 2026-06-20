@@ -7,8 +7,8 @@ export async function createBooking(input: unknown) {
   const parsed = createBookingSchema.parse(input);
   const homestay = await appRepository.getHomestay(parsed.homestayId);
   const room = homestay?.rooms.find((item) => item.id === parsed.roomId);
-  if (!homestay || !room) throw new Error("Room not found.");
-  if (parsed.guestCount > room.guests) throw new Error(`This room allows up to ${room.guests} guests.`);
+  if (!homestay || !room) throw new Error("Không tìm thấy phòng.");
+  if (parsed.guestCount > room.guests) throw new Error(`Phòng này tối đa ${room.guests} khách.`);
 
   const existingBookings = await appRepository.listBookings();
   const conflict = hasBookingConflict(
@@ -20,7 +20,7 @@ export async function createBooking(input: unknown) {
     })),
     { roomId: room.id, checkIn: parsed.checkIn, checkOut: parsed.checkOut },
   );
-  if (conflict) throw new Error("This room is no longer available for that time.");
+  if (conflict) throw new Error("Phòng này không còn trống trong khung giờ đó.");
 
   const quote = calculateStayPrice({
     stayType: parsed.stayType,

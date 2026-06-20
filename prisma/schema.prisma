@@ -129,10 +129,19 @@ model Room {
   name               String
   description        String              @db.Text
   maxGuests          Int
+  beds               String              @default("1 queen bed")
+  size               String              @default("30 m²")
   basePrice          Decimal             @db.Decimal(10, 2)
   hourlyPrice        Decimal?            @db.Decimal(10, 2)
   overnightPrice     Decimal?            @db.Decimal(10, 2)
   dailyPrice         Decimal?            @db.Decimal(10, 2)
+  hourlyBlockHours   Int                 @default(3)
+  hourlyBlockPrice   Decimal?            @db.Decimal(10, 2)
+  hourlyExtraHourPrice Decimal?          @db.Decimal(10, 2)
+  overnightOptions   Json?
+  image              String?
+  gallery            Json?
+  remaining          Int                 @default(1)
   minHours           Int                 @default(2)
   maxHours           Int                 @default(12)
   status             RoomStatus          @default(ACTIVE)
@@ -163,6 +172,7 @@ model HomestayAmenity {
 model Booking {
   id             String        @id @default(cuid())
   bookingRef     String        @unique
+  accessToken    String        @unique
   userId         String?
   user           User?         @relation(fields: [userId], references: [id])
   homestayId     String
@@ -290,8 +300,10 @@ model AIKnowledgeBaseItem {
   id         String    @id @default(cuid())
   homestayId String?
   homestay   Homestay? @relation(fields: [homestayId], references: [id], onDelete: Cascade)
-  title      String
-  content    String    @db.Text
+  titleEn    String
+  titleVi    String
+  contentEn  String    @db.Text
+  contentVi  String    @db.Text
   category   String
   enabled    Boolean   @default(true)
   createdAt  DateTime  @default(now())

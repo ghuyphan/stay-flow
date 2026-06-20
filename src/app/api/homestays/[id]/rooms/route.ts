@@ -13,5 +13,5 @@ export async function POST(
   const room = await appRepository.createRoom((await params).id, parsed.data);
   return room
     ? NextResponse.json(room, { status: 201 })
-    : NextResponse.json({ error: "Homestay not found." }, { status: 404 });
+    : NextResponse.json({ error: "Không tìm thấy cơ sở." }, { status: 404 });
 }

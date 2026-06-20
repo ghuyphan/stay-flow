@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, BedDouble, Gamepad2, KeyRound, Maximize2, Scan, Users, Utensils, X } from "lucide-react";
+import { ArrowLeft, Gamepad2, KeyRound, Maximize2, Scan, Users, Utensils, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -19,13 +19,15 @@ type Props = {
 export function RoomDetailClient({ homestay, room }: Props) {
   const { t } = useLanguage();
   const [selectedRoomId, setSelectedRoomId] = useState(room.id);
-  const roomGallery = room.gallery?.length ? room.gallery : [room.image, ...homestay.gallery.slice(0, 2)];
+  const roomGallery = Array.from(
+    new Set([...(room.gallery ?? []), room.image, ...homestay.gallery]),
+  ).filter(Boolean);
   const [activeImage, setActiveImage] = useState(roomGallery[0]);
   const [viewerOpen, setViewerOpen] = useState(false);
 
   return (
     <>
-      <Container className="py-4 lg:py-8">
+      <Container className="py-3 lg:py-6">
         <Link
           href={`/homestays/${homestay.slug}`}
           className="mb-4 inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
@@ -34,13 +36,13 @@ export function RoomDetailClient({ homestay, room }: Props) {
           {t("room.back_to_homestay", { name: t(homestay.name) })}
         </Link>
 
-        <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <Badge tone="primary">{homestay.tags[0] ? t(homestay.tags[0]) : t("booking.hourly")}</Badge>
-            <h1 className="mt-3 font-display text-4xl font-semibold leading-none tracking-tight md:text-5xl">
+            <h1 className="mt-3 text-4xl font-semibold leading-none tracking-tight md:text-5xl">
               {t(room.name)}
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
+            <p className="mt-3 line-clamp-2 max-w-2xl text-sm leading-6 text-muted-foreground">
               {t(room.description)}
             </p>
           </div>
@@ -49,15 +51,12 @@ export function RoomDetailClient({ homestay, room }: Props) {
               <Users className="size-3.5" /> {t("room.guests", { guests: room.guests })}
             </span>
             <span className="flex items-center gap-1 rounded-full bg-card px-3 py-1.5 shadow-sm">
-              <BedDouble className="size-3.5" /> {room.beds}
-            </span>
-            <span className="flex items-center gap-1 rounded-full bg-card px-3 py-1.5 shadow-sm">
               <Maximize2 className="size-3.5" /> {room.size}
             </span>
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-[calc(var(--radius-lg)+0.75rem)] border border-border bg-card shadow-[var(--shadow-sm)]">
+        <div className="relative overflow-hidden rounded-[calc(var(--radius-lg)+0.75rem)] bg-card shadow-[var(--shadow-sm)]">
           <div className="relative aspect-[4/3] overflow-hidden bg-muted md:aspect-[16/10]">
             <Image
               src={activeImage}
@@ -78,13 +77,13 @@ export function RoomDetailClient({ homestay, room }: Props) {
           </div>
         </div>
 
-        <div className="mt-3 grid grid-cols-3 gap-2 md:max-w-xl">
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 md:max-w-3xl">
           {roomGallery.map((image, index) => (
             <button
               key={`${image}-${index}`}
               type="button"
               onClick={() => setActiveImage(image)}
-              className={`relative h-20 overflow-hidden rounded-[var(--radius-lg)] border bg-card transition md:h-28 ${
+              className={`relative h-20 w-24 shrink-0 overflow-hidden rounded-[var(--radius-lg)] border bg-card transition md:h-24 md:w-32 ${
                 activeImage === image ? "border-primary ring-2 ring-primary/20" : "border-border"
               }`}
               aria-label={`Show room photo ${index + 1}`}
@@ -95,9 +94,9 @@ export function RoomDetailClient({ homestay, room }: Props) {
         </div>
       </Container>
 
-      <Container className="grid gap-6 pb-20 lg:grid-cols-[1fr_360px] lg:pb-24">
+      <Container className="grid gap-5 pb-20 lg:grid-cols-[1fr_360px] lg:pb-24">
         <div className="grid gap-6">
-          <section className="rounded-[var(--radius-lg)] border border-border bg-card/75 p-4">
+          <section className="rounded-[var(--radius-lg)] bg-card p-4 shadow-[var(--shadow-sm)]">
             <div className="flex items-end justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold text-accent">{t(homestay.name)}</p>
@@ -121,9 +120,9 @@ export function RoomDetailClient({ homestay, room }: Props) {
                 </span>
               ))}
             </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {homestay.amenities.slice(0, 6).map((amenity) => (
-                <span key={amenity} className="rounded-full bg-secondary px-3 py-1.5 text-sm font-semibold text-secondary-foreground">
+            <div className="mt-3 flex flex-wrap gap-2">
+              {homestay.amenities.slice(0, 4).map((amenity) => (
+                <span key={amenity} className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground">
                   {t(amenity)}
                 </span>
               ))}
@@ -153,13 +152,13 @@ export function RoomDetailClient({ homestay, room }: Props) {
             <div className="relative min-h-0 flex-1">
               <Image src={activeImage} alt={t(room.name)} fill className="object-contain" sizes="100vw" />
             </div>
-            <div className="grid grid-cols-3 gap-2 md:mx-auto md:w-full md:max-w-xl">
+            <div className="flex gap-2 overflow-x-auto md:mx-auto md:w-full md:max-w-3xl">
               {roomGallery.map((image, index) => (
                 <button
                   key={`viewer-${image}-${index}`}
                   type="button"
                   onClick={() => setActiveImage(image)}
-                  className={`relative h-20 overflow-hidden rounded-[var(--radius-lg)] border transition md:h-24 ${
+                  className={`relative h-20 w-24 shrink-0 overflow-hidden rounded-[var(--radius-lg)] border transition md:h-24 md:w-32 ${
                     activeImage === image ? "border-primary ring-2 ring-primary/40" : "border-white/20"
                   }`}
                   aria-label={`Show room photo ${index + 1}`}

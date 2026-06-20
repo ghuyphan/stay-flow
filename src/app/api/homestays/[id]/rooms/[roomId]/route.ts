@@ -14,7 +14,7 @@ export async function PUT(
   const room = await appRepository.updateRoom(id, roomId, parsed.data);
   return room
     ? NextResponse.json(room)
-    : NextResponse.json({ error: "Room not found." }, { status: 404 });
+    : NextResponse.json({ error: "Không tìm thấy phòng." }, { status: 404 });
 }
 
 export async function DELETE(
@@ -24,5 +24,5 @@ export async function DELETE(
   const { id, roomId } = await params;
   return (await appRepository.deleteRoom(id, roomId))
     ? NextResponse.json({ ok: true })
-    : NextResponse.json({ error: "Keep at least one room." }, { status: 400 });
+    : NextResponse.json({ error: "Cần giữ ít nhất một phòng." }, { status: 400 });
 }

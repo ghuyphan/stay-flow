@@ -1,10 +1,12 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ButtonSkeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import type { Homestay } from "@/lib/types";
 
 export function HomestayForm({ homestay }: { homestay?: Homestay }) {
@@ -35,7 +37,7 @@ export function HomestayForm({ homestay }: { homestay?: Homestay }) {
     const result = (await response.json()) as Homestay & { error?: string };
     setLoading(false);
     if (!response.ok) {
-      setError(result.error ?? "Unable to save homestay.");
+      setError(result.error ?? "Không thể lưu cơ sở.");
       return;
     }
     router.push(`/admin/homestays/${result.id}`);
@@ -43,19 +45,39 @@ export function HomestayForm({ homestay }: { homestay?: Homestay }) {
   }
 
   return (
-    <form onSubmit={submit} className="mt-6 grid max-w-3xl gap-5">
-      <div className="grid gap-5 sm:grid-cols-2">
-        <label className="text-sm font-semibold">Name<Input name="name" defaultValue={homestay?.name} required className="mt-2" /></label>
-        <label className="text-sm font-semibold">URL slug<Input name="slug" defaultValue={homestay?.slug} required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" className="mt-2" /></label>
-      </div>
-      <label className="text-sm font-semibold">Location<Input name="location" defaultValue={homestay?.location} required className="mt-2" /></label>
-      <label className="text-sm font-semibold">Description<textarea name="description" defaultValue={homestay?.description} required minLength={10} rows={4} className="mt-2 w-full rounded-[var(--radius-md)] border bg-background p-3 text-sm outline-none focus:border-ring" /></label>
-      <div className="grid gap-5 sm:grid-cols-[160px_1fr]">
-        <label className="text-sm font-semibold">Price from<Input name="priceFrom" type="number" min="1" defaultValue={homestay?.priceFrom ?? 80} required className="mt-2" /></label>
-        <label className="text-sm font-semibold">Cover image URL<Input name="image" type="url" defaultValue={homestay?.image} required className="mt-2" /></label>
-      </div>
+    <form onSubmit={submit} className="mt-6 grid max-w-4xl gap-4">
+      <Card className="p-5">
+        <div className="mb-5">
+          <h2 className="font-semibold">Thông tin cơ sở</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Tên, đường dẫn, địa điểm và mô tả ngắn hiển thị cho khách.</p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="text-sm font-semibold">Tên<Input name="name" defaultValue={homestay?.name} required className="mt-2" /></label>
+          <label className="text-sm font-semibold">Đường dẫn URL<Input name="slug" defaultValue={homestay?.slug} required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" className="mt-2" /></label>
+          <label className="text-sm font-semibold sm:col-span-2">Địa điểm<Input name="location" defaultValue={homestay?.location} required className="mt-2" /></label>
+          <label className="text-sm font-semibold sm:col-span-2">Mô tả<Textarea name="description" defaultValue={homestay?.description} required minLength={10} rows={4} className="mt-2" /></label>
+        </div>
+      </Card>
+
+      <Card className="p-5">
+        <div className="mb-5">
+          <h2 className="font-semibold">Hình ảnh và giá khởi điểm</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Ảnh này dùng cho thẻ danh sách và trang chi tiết.</p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-[180px_1fr]">
+          <label className="text-sm font-semibold">Giá từ<Input name="priceFrom" type="number" min="1" defaultValue={homestay?.priceFrom ?? 1250000} required className="mt-2" /></label>
+          <label className="text-sm font-semibold">URL ảnh bìa<Input name="image" type="url" defaultValue={homestay?.image} required className="mt-2" /></label>
+        </div>
+      </Card>
+
       {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
-      <div><Button type="submit" disabled={loading}>{loading ? <Loader2 className="size-4 animate-spin" /> : null}{homestay ? "Save changes" : "Create homestay"}</Button></div>
+      <div className="sticky bottom-4 z-10 flex rounded-[var(--radius-lg)] bg-background/90 py-2 backdrop-blur">
+        {loading ? (
+          <ButtonSkeleton className="w-40" />
+        ) : (
+          <Button type="submit">{homestay ? "Lưu thay đổi" : "Tạo cơ sở"}</Button>
+        )}
+      </div>
     </form>
   );
 }

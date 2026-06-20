@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     return NextResponse.json(await appRepository.createHomestay(parsed.data), { status: 201 });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unable to create homestay." },
+      { error: error instanceof Error ? error.message : "Không thể tạo cơ sở." },
       { status: 400 },
     );
   }

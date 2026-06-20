@@ -142,19 +142,25 @@ async function main() {
     },
   });
 
-  await prisma.aIKnowledgeBaseItem.createMany({
-    data: [
+  const knowledgeItems = [
       {
-        title: "Check-in and check-out",
+        titleEn: "Check-in and check-out",
+        titleVi: "Nhận và trả phòng",
         category: "arrival",
-        content: "Check-in begins at 2 PM and check-out is by 11 AM.",
+        contentEn: "Check-in begins at 2 PM and check-out is by 11 AM.",
+        contentVi: "Khách có thể nhận phòng từ 14:00 và trả phòng trước 11:00.",
       },
       {
-        title: "Availability policy",
+        titleEn: "Availability policy",
+        titleVi: "Chính sách phòng trống",
         category: "booking",
-        content: "Availability must always be verified by the booking service.",
+        contentEn: "Availability must always be verified by the booking service.",
+        contentVi: "Phòng trống luôn phải được kiểm tra bởi dịch vụ đặt phòng trước khi xác nhận.",
       },
-    ],
+    ];
+
+  await prisma.aIKnowledgeBaseItem.createMany({
+    data: knowledgeItems as never,
     skipDuplicates: true,
   });
 }
